@@ -1,5 +1,51 @@
 #include "HASMRules.h"
 
+
+typedef struct Label
+{
+    const char* label;
+    u_int32_t ptr;
+} Label;
+
+typedef struct Labels
+{
+    Label* labels;
+    int count;
+    int capacity;
+} Labels;
+
+struct Labels* createLabels()
+{
+    struct Labels* labels = malloc(sizeof(struct Labels));
+    labels->count = 0;
+    labels->capacity = 256;
+    labels->labels = malloc(sizeof(Label) * 256);
+    return labels;
+}
+
+void addLabel(struct Labels* labels, struct Label label)
+{
+    labels->labels[labels->count++] = label;
+    if (labels->count == labels->capacity)
+    {
+        labels->capacity += 256;
+        labels->labels = realloc(labels->labels, labels->capacity * sizeof(struct Label));
+    }
+}
+
+u_int32_t findLabel(struct Labels* labels, char* label)
+{
+    for (int i = 0; i < labels->count; i++)
+    {
+        if (strcmp(labels->labels[i].label, label) == 0)
+        {
+            return labels->labels[i].ptr;
+        }
+    }
+    return -1;
+}
+
+
 void replaceCharsAtOffset(FILE *file, long offset, const char *replacement) {
     // Seek to the specified offset in the file
     if (fseek(file, offset, SEEK_SET) != 0) {
@@ -753,10 +799,16 @@ void fileprint_pp_complex_instruction(FILE* file, u_int8_t instruction, u_int8_t
 #pragma endregion
 
 
+
+
+struct Labels* labels;
+
+
 #define COMPILER HASM
 #define NODE Root
 iteration(semantics)
 {
+    labels = createLabels();
     continue_it();
 }
 iteration(codegen)
@@ -839,6 +891,10 @@ iteration(semantics)
 iteration(codegen)
 {
     var_0->ptr = GetFileSize(file);
+    struct Label label;
+    label.label = var_0->value;
+    label.ptr = var_0->ptr;
+    addLabel(labels, label);
     continue_it();
 }
 iteration(label_resolution)
