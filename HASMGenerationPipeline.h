@@ -23,6 +23,8 @@ struct Labels* createLabels()
     return labels;
 }
 
+
+
 void addLabel(struct Labels* labels, struct Label label)
 {
     labels->labels[labels->count++] = label;
@@ -37,6 +39,7 @@ u_int32_t findLabel(struct Labels* labels, char* label)
 {
     for (int i = 0; i < labels->count; i++)
     {
+        printf("%s %s %i \n", labels->labels[i].label, label, strcmp(labels->labels[i].label, label));
         if (strcmp(labels->labels[i].label, label) == 0)
         {
             return labels->labels[i].ptr;
@@ -160,6 +163,7 @@ void handleLoadOffset(FILE* file, int num, int src, int dst) {
         fprintf(file, "%c", num);
     }
 }
+
 
 void handleComplexLoadOffset(FILE* file, int num, int mod, int src_l, int src_r, int dst) {
     if (num < -127 || num > 127)
@@ -803,13 +807,40 @@ void fileprint_pp_complex_instruction(FILE* file, u_int8_t instruction, u_int8_t
 
 struct Labels* labels;
 
-
 #define COMPILER HASM
 #define NODE Root
 iteration(semantics)
 {
-    labels = createLabels();
+
+    var_0->ehdr = (Elf64_Ehdr) {
+        .e_ident = {
+            ELFMAG0,
+            ELFMAG1,
+            ELFMAG2,
+            ELFMAG3,
+            ELFCLASS64,
+            ELFDATA2LSB,
+            EV_CURRENT,
+            ELFOSABI_SYSV,
+            0, 0, 0, 0, 0, 0, 0
+        },
+        .e_type = ET_EXEC,
+        .e_machine = EM_X86_64,
+        .e_entry = 0x40007F,
+        .e_phoff = 64,
+        .e_shoff = 0,
+        .e_flags = 0,
+        .e_ehsize = 64,
+        .e_phentsize = 56,
+        .e_phnum = 1,
+        .e_shentsize = 0,
+        .e_shnum = 0,
+        .e_shstrndx = SHN_UNDEF
+    };
+    fwrite(&var_0->ehdr, 1, sizeof(var_0->ehdr), file);
+
     continue_it();
+    labels = createLabels();
 }
 iteration(codegen)
 {
@@ -895,6 +926,39 @@ iteration(codegen)
     label.label = var_0->value;
     label.ptr = var_0->ptr;
     addLabel(labels, label);
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE Section
+iteration(semantics)
+{
+    var_0->phdr = (Elf64_Phdr) {
+        .p_type = PT_LOAD,
+        .p_offset = 0x78, // 64 + 56
+        .p_vaddr = 0x400078,
+        .p_paddr = 0x400078,
+        .p_filesz = 44,
+        .p_memsz = 44,
+        .p_flags = PF_X | PF_R,
+        .p_align = 0x8
+    };
+    fwrite(&var_0->phdr, 1, sizeof(var_0->phdr), file);
+    fprintf(file, "Hello!\n");
+    printf("HI");
+
+    continue_it();
+    // var_0->value = var_0->var_2->token->value;
+}
+iteration(codegen)
+{
+    // var_0->ptr = GetFileSize(file);
+    // struct Label label;
+    // label.label = var_0->value;
+    // label.ptr = var_0->ptr;
+    // addLabel(labels, label);
     continue_it();
 }
 iteration(label_resolution)
@@ -1044,6 +1108,20 @@ iteration(codegen)
 iteration(label_resolution)
 {
      continue_it();
+}
+#define NODE Jump_instruction
+iteration(semantics)
+{
+    continue_it();
+    var_0->instruction = var_0->var_index-1;
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
 }
 #define NODE Bitwise_instruction
 iteration(semantics)
@@ -1757,4 +1835,54 @@ iteration(codegen)
 iteration(label_resolution)
 {
      continue_it();
+}
+#define NODE jump_label
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    int position = findLabel(labels, var_0->var_2->token->value);
+    printf("%i\n", position);
+    if (position != -1)
+    {
+        int offset = position - GetFileSize(file) - 2;
+
+        if (offset < -129 || offset > 128)
+        {
+            offset-=4;
+            fprintf(file, "%c%c", 0x0F, 0x80 + var_0->var_1->instruction);
+            fprintf(file, "%c%c%c%c", offset & 0xFF, (offset >> 8) & 0xFF, (offset >> 16) & 0xFF, (offset >> 24) & 0xFF);
+        }
+        else
+        {
+            fprintf(file, "%c", 0x70 + var_0->var_1->instruction);
+            fprintf(file, "%c", offset);
+        }
+    }
+    else
+    {
+        printf("ERROR: Label does not exist\n");
+    }
+    var_0->ptr = GetFileSize(file);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE syscall_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c", 0x0F, 0x05);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
 }

@@ -1,13 +1,17 @@
 #pragma once
 
 #include "CompilerBuilder.h"
-
-
+#include "elf.h"
 
 
 #define COMPILER HASM
 createCompilerH(
     tokens(
+        token(SECTION, "^SECTION")
+        token(GLOBAL, "^GLOBAL")
+        token(SECTION_TEXT, "^\\.text")
+        token(SECTION_DATA, "^\\.data")
+        token(SYSCALL, "^SYSCALL")
         token(BYTE, "^BYTE")
         token(WORD, "^WORD")
         token(DWORD, "^DWORD")
@@ -21,6 +25,23 @@ createCompilerH(
         token(SAL, "^SAL")
         token(SHR, "^SHR")
         token(SAR, "^SAR")
+
+        token(JO, "^JO")
+        token(JNO, "^JNO")
+        token(JBE, "^JBE")
+        token(JB, "^JB")
+        token(JAE, "^JAE")
+        token(JNE, "^JNE")
+        token(JE, "^JE")
+        token(JA, "^JA")
+        token(JS, "^JS")
+        token(JNS, "^JNS")
+        token(JP, "^JP")
+        token(JNP, "^JNP")
+        token(JLE, "^JLE")
+        token(JL, "^JL")
+        token(JGE, "^JGE")
+        token(JG, "^JG")
         
         token(POP, "^POP")
         token(PUSH, "^PUSH")
@@ -102,6 +123,7 @@ createCompilerH(
         all_rule(
             Statement
         )
+        var(Elf64_Ehdr, ehdr)
     )
     nodeNext(Statement
         any_rule(
@@ -150,7 +172,10 @@ createCompilerH(
             bitwise_cl_offset_instruction,
             RET_instruction,
             NOP_instruction,
-            Label
+            Label,
+            jump_label,
+            Section,
+            syscall_instruction
         )
     )
     node(NOP_instruction
@@ -177,6 +202,15 @@ createCompilerH(
         )
         var(int, ptr)
         var(char*, value)
+    )
+    node(Section
+        all_rule(
+            SECTION,
+            IDENTIFIER
+        )
+        var(int, ptr)
+        var(char*, value)
+        var(Elf64_Phdr, phdr)
     )
     node(Register64
         any_rule(
@@ -269,6 +303,28 @@ createCompilerH(
         )
         var(unsigned char, instruction)
         var(unsigned char, group)
+    )
+    node(Jump_instruction
+        any_rule(
+            JO,
+            JNO,
+            JB,
+            JAE,
+            JE,
+            JNE,
+            JBE,
+            JA,
+            JS,
+            JNS,
+            JP,
+            JNP,
+            JL,
+            JGE,
+            JLE,
+            JG
+        )
+        var(unsigned char, instruction)
+        var(long, ptr)
     )
     node(Miscellaneous_Arithmetic_instruction
         any_rule(
@@ -735,6 +791,18 @@ createCompilerH(
             NUMBER_LITERAL,
             CLOSE_BRACK,
             CL
+        )
+    )
+    node(jump_label
+        all_rule(
+            Jump_instruction,
+            IDENTIFIER
+        )
+        var(long, ptr)
+    )
+    node(syscall_instruction
+        all_rule(
+            SYSCALL
         )
     )
     iterationStep(semantics)

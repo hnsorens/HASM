@@ -1,1 +1,15 @@
-MOV RAX RBX
+GLOBAL _start
+
+SECTION .data
+    message: DB "Hello!", 10
+
+SECTION .text
+_start:
+    MOV RAX 0x01
+    MOV RDI 0x01
+    MOV RSI message
+    MOV RDX 0x07
+    SYSCALL
+    MOV RAX 0x3C
+    XOR RDI RDI
+    SYSCALL
