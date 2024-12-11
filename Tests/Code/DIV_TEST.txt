@@ -1,3 +1,4 @@
+SECTION .text
 DIV RCX
 DIV RBX
 DIV EBX

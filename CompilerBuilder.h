@@ -371,6 +371,16 @@ void Compile##name_(const char* in, const char* out) \
     if (tokens->token_on != tokens->token_count) \
     { \
         printf("Syntax Error!\n"); \
+        int token_from = 0; \
+        if (tokens->token_on - 10 > 0) \
+        { \
+            token_from = tokens->token_on; \
+        } \
+        for (int i = token_from; i < tokens->token_on; i++) \
+        { \
+            printf("%s ", tokens->tokens[i].value); \
+        } \
+        printf(" <--- Error Here\n"); \
         exit(1); \
     } \
     name_##Out = fopen(out, "w"); \

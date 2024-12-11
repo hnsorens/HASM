@@ -1,3 +1,4 @@
+SECTION .text
 DEC RCX
 DEC RBX
 DEC EBX

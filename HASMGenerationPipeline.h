@@ -1,5 +1,37 @@
 #include "HASMRules.h"
 
+char* long_to_hex_string(long value) {
+    // Calculate the size of the string needed: 2 hex digits per byte + "0x" + null terminator
+    size_t byte_count = sizeof(long);
+    size_t string_size = 2 * byte_count + 3; // "0x" + 2 digits per byte + null terminator
+
+    // Allocate memory for the string
+    char* hex_string = (char*)malloc(string_size);
+    if (hex_string == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        return NULL;
+    }
+
+    // Build the hexadecimal string
+    snprintf(hex_string, string_size, "0x");
+    for (size_t i = 0; i < byte_count; ++i) {
+        snprintf(hex_string + 2 + i * 2, 3, "%02X", (unsigned char)((value >> (8 * (byte_count - 1 - i))) & 0xFF));
+    }
+
+    return hex_string;
+}
+
+long hex_to_long(const char* hex_str) {
+    if (hex_str == NULL) {
+        printf("an error has occured!");
+        exit(1);
+    }
+
+    char* endptr;
+    long result = strtol(hex_str, &endptr, 16);
+
+    return result;
+}
 
 typedef struct Label
 {
@@ -39,31 +71,41 @@ u_int32_t findLabel(struct Labels* labels, char* label)
 {
     for (int i = 0; i < labels->count; i++)
     {
-        printf("%s %s %i \n", labels->labels[i].label, label, strcmp(labels->labels[i].label, label));
         if (strcmp(labels->labels[i].label, label) == 0)
         {
             return labels->labels[i].ptr;
         }
     }
+    printf("Didnt find label %i \n", labels->count);
     return -1;
 }
 
 
-void replaceCharsAtOffset(FILE *file, long offset, const char *replacement) {
-    // Seek to the specified offset in the file
-    if (fseek(file, offset, SEEK_SET) != 0) {
-        perror("Error seeking to offset");
-        return;
+int replace_bytes(FILE *file, int offset, int size, long value) {
+    if (size <= 0 || size > sizeof(long)) {
+        fprintf(stderr, "Error: Invalid size. Must be between 1 and %lu.\n", sizeof(long));
+        return -1;
     }
 
-    // Replace characters at the given offset
-    size_t replacementLength = strlen(replacement);
-    for (size_t i = 0; i < replacementLength; ++i) {
-        if (fputc(replacement[i], file) == EOF) {
-            perror("Error writing to file");
-            return;
-        }
+    uint8_t buffer[sizeof(long)] = {0};
+    memcpy(buffer, &value, size);
+
+    if (fseek(file, offset, SEEK_SET) != 0) {
+        printf("There was some error!");
+        exit(1);
     }
+
+    if (fwrite(buffer, 1, size, file) != (size_t)size) {
+        printf("There was some error!");
+        exit(1);
+    }
+
+    if (fflush(file) != 0) {
+       printf("There was some error!");
+        exit(1);
+    }
+
+    return 0;
 }
 
 long GetFileSize(FILE *file) {
@@ -134,6 +176,7 @@ void hexStringToByteArray(FILE* file, const char* hexString, int size) {
 }
 
 int file_pointer = 0;
+
 int hexStringSize(const char* hexString) {
     // Skip the "0x" prefix if it exists
     const char* hex = hexString;
@@ -825,6 +868,7 @@ iteration(label_resolution)
 #define NODE Global
 iteration(semantics)
 {
+    beggining_label = var_0->var_2->token->value;
     var_0->ehdr = (Elf64_Ehdr) {
         .e_ident = {
             ELFMAG0,
@@ -839,7 +883,7 @@ iteration(semantics)
         },
         .e_type = ET_EXEC,
         .e_machine = EM_X86_64,
-        .e_entry = 0x40007F,
+        .e_entry = 0, // filled in later
         .e_phoff = 64,
         .e_shoff = 0,
         .e_flags = 0,
@@ -858,13 +902,12 @@ iteration(semantics)
         .p_offset = 0x78, // 64 + 56
         .p_vaddr = 0x400078,
         .p_paddr = 0x400078,
-        .p_filesz = 44,
-        .p_memsz = 44,
+        .p_filesz = 0, // filled in later
+        .p_memsz = 0, // filled in later
         .p_flags = PF_X | PF_R,
         .p_align = 0x8
     };
     fwrite(&var_0->phdr, 1, sizeof(var_0->phdr), file);
-    fprintf(file, "Hello!\n");
 
     continue_it();
 }
@@ -874,6 +917,9 @@ iteration(codegen)
 }
 iteration(label_resolution)
 {
+    replace_bytes(file, 0x18, 4, 0x400000 + beggining_offset);
+    replace_bytes(file, 0x60, 4, GetFileSize(file) - 0x78);
+    replace_bytes(file, 0x68, 4, GetFileSize(file) - 0x78);
      continue_it();
 }
 #define NODE Section_Text_Statement
@@ -1004,6 +1050,10 @@ iteration(codegen)
     label.label = var_0->value;
     label.ptr = var_0->ptr;
     addLabel(labels, label);
+    if (strcmp(var_0->value, beggining_label) == 0)
+    {
+        beggining_offset = var_0->ptr;
+    }
     continue_it();
 }
 iteration(label_resolution)
@@ -1357,6 +1407,19 @@ iteration(label_resolution)
 {
      continue_it();
 }
+#define NODE Hex_Identifier
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
 #define NODE MOV_r_imm_instruction
 iteration(semantics)
 {
@@ -1364,7 +1427,18 @@ iteration(semantics)
 }
 iteration(codegen)
 {
-    fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_3->token->value);
+    long value;
+    if (var_0->var_3->var_index == 1)
+    {
+        value = findLabel(labels, var_0->var_3->var.var_1->token->value);
+        value += 0x400000;
+        fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, long_to_hex_string(value));
+    }
+    if (var_0->var_3->var_index == 2)
+    {
+        fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_3->var.var_2->token->value);
+    }
+    
     continue_it();
 }
 iteration(label_resolution)
@@ -1889,7 +1963,6 @@ iteration(semantics)
 iteration(codegen)
 {
     int position = findLabel(labels, var_0->var_2->token->value);
-    printf("%i\n", position);
     if (position != -1)
     {
         int offset = position - GetFileSize(file) - 2;
@@ -1925,6 +1998,191 @@ iteration(semantics)
 iteration(codegen)
 {
     fprintf(file, "%c%c", 0x0F, 0x05);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE Directive
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE Variable
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    struct Label label;
+    label.label = var_0->var_1->token->value;
+    label.ptr = GetFileSize(file);
+    addLabel(labels, label);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE Variable_Value
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE Variable_Value_DB
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    switch (var_0->var_index)
+    {
+        case 1:
+            char* string = var_0->var.var_1->token->value;
+            for (int i = 1; i < strlen(string)-1; i++)
+            {
+                fprintf(file, "%c", string[i]);
+            }
+        break;
+        case 2:
+            fprintf(file, "%c", var_0->var.var_2->token->value[1]);
+        break;
+        case 3:
+            int filesize = GetFileSize(file);
+            fprintf(file, "0");
+            replace_bytes(file, filesize, 1, atoi(var_0->var.var_3->token->value));
+        break;
+        case 4:
+            hexStringToByteArray(file, var_0->var.var_4->token->value, 1);
+        break;
+    }
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE Variable_Value_DW
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    switch (var_0->var_index)
+    {
+        case 1:
+            char* string = var_0->var.var_1->token->value;
+            for (int i = 1; i < strlen(string)-1; i++)
+            {
+                fprintf(file, "%c", string[i]);
+                fprintf(file, "\0");
+            }
+        break;
+        case 2:
+            fprintf(file, "%c", var_0->var.var_2->token->value[1]);
+            fprintf(file, "\0");
+        break;
+        case 3:
+            int filesize = GetFileSize(file);
+            fprintf(file, "\0\0");
+            replace_bytes(file, filesize, 2, atoi(var_0->var.var_3->token->value));
+        break;
+        case 4:
+            hexStringToByteArray(file, var_0->var.var_4->token->value, 2);
+        break;
+    }
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE Variable_Value_DD
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    switch (var_0->var_index)
+    {
+        case 1:
+            char* string = var_0->var.var_1->token->value;
+            for (int i = 1; i < strlen(string)-1; i++)
+            {
+                fprintf(file, "%c", string[i]);
+                fprintf(file, "\0\0\0");
+            }
+        break;
+        case 2:
+            fprintf(file, "%c", var_0->var.var_2->token->value[1]);
+            fprintf(file, "\0\0\0");
+        break;
+        case 3:
+            int filesize = GetFileSize(file);
+            fprintf(file, "\0\0\0\0");
+            replace_bytes(file, filesize, 4, atoi(var_0->var.var_3->token->value));
+        break;
+        case 4:
+            hexStringToByteArray(file, var_0->var.var_4->token->value, 4);
+        break;
+    }
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE Variable_Value_DQ
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    switch (var_0->var_index)
+    {
+        case 1:
+            char* string = var_0->var.var_1->token->value;
+            for (int i = 1; i < strlen(string)-1; i++)
+            {
+                fprintf(file, "%c", string[i]);
+                fprintf(file, "\0\0\0\0\0\0\0");
+            }
+        break;
+        case 2:
+            fprintf(file, "%c", var_0->var.var_2->token->value[1]);
+            fprintf(file, "\0\0\0\0\0\0\0");
+        break;
+        case 3:
+            int filesize = GetFileSize(file);
+            fprintf(file, "\0\0\0\0\0\0\0\0");
+            replace_bytes(file, filesize, 8, atoi(var_0->var.var_3->token->value));
+        break;
+        case 4:
+            hexStringToByteArray(file, var_0->var.var_4->token->value, 8);
+        break;
+    }
     continue_it();
 }
 iteration(label_resolution)

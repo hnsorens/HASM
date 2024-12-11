@@ -4,9 +4,13 @@
 #include "elf.h"
 
 
+long beggining_offset = 0;
+char* beggining_label = 0;
+
 #define COMPILER HASM
 createCompilerH(
     tokens(
+
         token(SECTION, "^SECTION")
         token(GLOBAL, "^GLOBAL")
         token(SECTION_TEXT, "^\\.text")
@@ -105,6 +109,10 @@ createCompilerH(
         token(R13, "^R13")
         token(R14, "^R14")
         token(R15, "^R15")
+        token(DB, "^DB")
+        token(DW, "^DW")
+        token(DD, "^DD")
+        token(DQ, "^DQ")
         token(OPEN_BRACK, "^\\[")
         token(CLOSE_BRACK, "^\\]")
         token(PLUS, "^\\+")
@@ -114,7 +122,10 @@ createCompilerH(
         token(IDENTIFIER, "^[a-zA-Z_][a-zA-Z0-9_]*")
         token(HEX_LITERAL, "^0x[0-9A-Za-z_]*")
         token(NUMBER_LITERAL, "^[0-9]+")
+        token(STRING_LITERAL, "^\"[^\"]*\"")
+        token(CHAR_LITERAL, "^'.'")
         token(WHITESPACE, "\\s+")
+
     )
     ignoreTokens(
         WHITESPACE
@@ -169,28 +180,24 @@ createCompilerH(
             MOV_indexed_r_instruction,
             MOV_scaled_r_instruction,
             MOV_complex_r_instruction,
-
             r_instruction,
             indirect_instruction,
             index_instruction,
             scaled_instruction,
             complex_instruction,
             offset_instruction,
-            
             pp_r_instruction,
             pp_indirect_instruction,
             pp_index_instruction,
             pp_scaled_instruction,
             pp_complex_instruction,
             pp_offset_instruction,
-
             bitwise_hex_r_instruction,
             bitwise_hex_indirect_instruction,
             bitwise_hex_index_instruction,
             bitwise_hex_scaled_instruction,
             bitwise_hex_complex_instruction,
             bitwise_hex_offset_instruction,
-
             bitwise_cl_r_instruction,
             bitwise_cl_indirect_instruction,
             bitwise_cl_index_instruction,
@@ -206,7 +213,7 @@ createCompilerH(
     )
     nodeNext(Section_Data_Statement
         any_rule(
-            syscall_instruction
+            Variable
         )
     )
     node(NOP_instruction
@@ -400,11 +407,18 @@ createCompilerH(
             Register
         )
     )
+    node(Hex_Identifier
+        any_rule(
+            IDENTIFIER,
+            HEX_LITERAL
+        )
+        var(long, value)
+    )
     node(MOV_r_imm_instruction
         all_rule(
             Multi_Purpose_instruction,
             Register,
-            HEX_LITERAL
+            Hex_Identifier
         )
     )
     node(MOV_r_direct_instruction
@@ -827,6 +841,63 @@ createCompilerH(
             SYSCALL
         )
     )
+    node(Directive
+        any_rule(
+            DB,
+            DW,
+            DD,
+            DQ
+        )
+        var(int, size)
+    )
+    node(Variable
+        all_rule(
+            IDENTIFIER,
+            Directive,
+            Variable_Value
+        )
+    )
+    node(Variable_Value
+        any_rule(
+            Variable_Value_DB,
+            Variable_Value_DW,
+            Variable_Value_DD,
+            Variable_Value_DQ
+        )
+    )
+    nodeNext(Variable_Value_DB
+        any_rule(
+            STRING_LITERAL,
+            CHAR_LITERAL,
+            NUMBER_LITERAL,
+            HEX_LITERAL
+        )
+    )
+    nodeNext(Variable_Value_DW
+        any_rule(
+            STRING_LITERAL,
+            CHAR_LITERAL,
+            NUMBER_LITERAL,
+            HEX_LITERAL
+        )
+    )
+    nodeNext(Variable_Value_DD
+        any_rule(
+            STRING_LITERAL,
+            CHAR_LITERAL,
+            NUMBER_LITERAL,
+            HEX_LITERAL
+        )
+    )
+    nodeNext(Variable_Value_DQ
+        any_rule(
+            STRING_LITERAL,
+            CHAR_LITERAL,
+            NUMBER_LITERAL,
+            HEX_LITERAL
+        )
+    )
+
     iterationStep(semantics)
     iterationStep(codegen)
     iterationStep(label_resolution)
