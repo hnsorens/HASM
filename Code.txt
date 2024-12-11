@@ -1,13 +1,12 @@
 GLOBAL _start
 
 SECTION .data
-    message: DB "Hello!", 10
+    SYSCALL
 
 SECTION .text
-_start:
     MOV RAX 0x01
     MOV RDI 0x01
-    MOV RSI message
+    MOV RSI 0x400078
     MOV RDX 0x07
     SYSCALL
     MOV RAX 0x3C

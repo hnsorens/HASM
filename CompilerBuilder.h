@@ -368,9 +368,13 @@ void Compile##name_(const char* in, const char* out) \
     fclose(file); \
     struct name_##TokenBatch* tokens = name_##tokenize(source); \
     struct name_##Root* root = name_##CreateRoot(tokens); \
+    if (tokens->token_on != tokens->token_count) \
+    { \
+        printf("Syntax Error!\n"); \
+        exit(1); \
+    } \
     name_##Out = fopen(out, "w"); \
     MACRO_FOR_EACH(H_ITERATION_STEP_CALL__, __VA_ARGS__) \
-    printf("%i\n", name_##garbage->count); \
     free(tokens->tokens); \
     name_##FreeAll(); \
     free(name_##garbage->ptrs); \
@@ -566,7 +570,7 @@ struct compilerName_##name_* compilerName_##Create##name_(struct compilerName_##
 struct compilerName_##name_ * compilerName_##Create##name_(struct compilerName_##TokenBatch* batch) \
 { \
     int current_token = batch->token_on; \
-    int end_token = 0; \
+    int end_token = current_token; \
     struct compilerName_##name_ * var_0 = (void*)0; \
     MACRO2_FOR_EACH(CREATE__, __VA_ARGS__) \
     MACRO2_FOR_EACH(CREATE_MALLOC__, __VA_ARGS__) \
@@ -603,7 +607,7 @@ struct compilerName_##name_* compilerName_##Create##name_(struct compilerName_##
 struct compilerName_##name_ * compilerName_##Create##name_(struct compilerName_##TokenBatch* batch) \
 { \
     int current_token = batch->token_on; \
-    int end_token = 0; \
+    int end_token = current_token; \
     struct compilerName_##name_ * var_0 = (void*)0; \
     struct compilerName_##name_ * (*func)(struct compilerName_##TokenBatch*) = compilerName_##Create##name_; \
     MACRO2_FOR_EACH(CREATE__, __VA_ARGS__) \
@@ -687,7 +691,7 @@ struct compilerName_##name_ * compilerName_##Create##name_(struct compilerName_#
 #define INDEX_VAR__ANY_RULE_IMPL(...) int var_index;
 #define CREATE_MALLOC__ANY_RULE_IMPL(...)
 #define CREATE_END__ANY_RULE_IMPL(...) batch->token_on = end_token; return var_0;
-#define NEXT_CREATE_END__ANY_RULE_IMPL(...) batch->token_on = end_token; return var_0;
+#define NEXT_CREATE_END__ANY_RULE_IMPL(...) batch->token_on = end_token;  return var_0;
 #define CREATE__ANY_RULE_IMPL(...)
 #define CREATE_CHECK_ALL__ANY_RULE_IMPL(...) INDEXED_RUN_MACRO_FOR_EACH(ANY_SET_NODE, __VA_ARGS__)
 #define NEXT_CREATE_CHECK_ALL__ANY_RULE_IMPL(...) INDEXED_RUN_MACRO_FOR_EACH(NEXT_ANY_SET_NODE, __VA_ARGS__)

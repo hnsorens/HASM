@@ -811,7 +811,20 @@ struct Labels* labels;
 #define NODE Root
 iteration(semantics)
 {
-
+    labels = createLabels();
+    continue_it();
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE Global
+iteration(semantics)
+{
     var_0->ehdr = (Elf64_Ehdr) {
         .e_ident = {
             ELFMAG0,
@@ -839,8 +852,21 @@ iteration(semantics)
     };
     fwrite(&var_0->ehdr, 1, sizeof(var_0->ehdr), file);
 
+    
+    var_0->phdr = (Elf64_Phdr) {
+        .p_type = PT_LOAD,
+        .p_offset = 0x78, // 64 + 56
+        .p_vaddr = 0x400078,
+        .p_paddr = 0x400078,
+        .p_filesz = 44,
+        .p_memsz = 44,
+        .p_flags = PF_X | PF_R,
+        .p_align = 0x8
+    };
+    fwrite(&var_0->phdr, 1, sizeof(var_0->phdr), file);
+    fprintf(file, "Hello!\n");
+
     continue_it();
-    labels = createLabels();
 }
 iteration(codegen)
 {
@@ -850,7 +876,59 @@ iteration(label_resolution)
 {
      continue_it();
 }
+#define NODE Section_Text_Statement
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
 #define NODE Statement
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE Section_Data_Statement
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE Section_Text
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE Section_Data
 iteration(semantics)
 {
     continue_it();
@@ -926,39 +1004,6 @@ iteration(codegen)
     label.label = var_0->value;
     label.ptr = var_0->ptr;
     addLabel(labels, label);
-    continue_it();
-}
-iteration(label_resolution)
-{
-     continue_it();
-}
-#define NODE Section
-iteration(semantics)
-{
-    var_0->phdr = (Elf64_Phdr) {
-        .p_type = PT_LOAD,
-        .p_offset = 0x78, // 64 + 56
-        .p_vaddr = 0x400078,
-        .p_paddr = 0x400078,
-        .p_filesz = 44,
-        .p_memsz = 44,
-        .p_flags = PF_X | PF_R,
-        .p_align = 0x8
-    };
-    fwrite(&var_0->phdr, 1, sizeof(var_0->phdr), file);
-    fprintf(file, "Hello!\n");
-    printf("HI");
-
-    continue_it();
-    // var_0->value = var_0->var_2->token->value;
-}
-iteration(codegen)
-{
-    // var_0->ptr = GetFileSize(file);
-    // struct Label label;
-    // label.label = var_0->value;
-    // label.ptr = var_0->ptr;
-    // addLabel(labels, label);
     continue_it();
 }
 iteration(label_resolution)

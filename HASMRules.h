@@ -123,11 +123,38 @@ createCompilerH(
         all_rule(
             Statement
         )
-        var(Elf64_Ehdr, ehdr)
     )
     nodeNext(Statement
         any_rule(
-
+            Global,
+            Section_Data,
+            Section_Text
+        )
+    )
+    node(Section_Data
+        all_rule(
+            SECTION,
+            SECTION_DATA,
+            Section_Data_Statement
+        )
+    )
+    node(Section_Text
+        all_rule(
+            SECTION,
+            SECTION_TEXT,
+            Section_Text_Statement
+        )
+    )
+    node(Global
+        all_rule(
+            GLOBAL,
+            IDENTIFIER
+        )
+        var(Elf64_Ehdr, ehdr)
+        var(Elf64_Phdr, phdr)
+    )
+    nodeNext(Section_Text_Statement
+        any_rule(
             MOV_r_r_instruction,
             MOV_r_imm_instruction,
             MOV_r_direct_instruction,
@@ -174,7 +201,11 @@ createCompilerH(
             NOP_instruction,
             Label,
             jump_label,
-            Section,
+            syscall_instruction
+        )
+    )
+    nodeNext(Section_Data_Statement
+        any_rule(
             syscall_instruction
         )
     )
@@ -202,15 +233,6 @@ createCompilerH(
         )
         var(int, ptr)
         var(char*, value)
-    )
-    node(Section
-        all_rule(
-            SECTION,
-            IDENTIFIER
-        )
-        var(int, ptr)
-        var(char*, value)
-        var(Elf64_Phdr, phdr)
     )
     node(Register64
         any_rule(
