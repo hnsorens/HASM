@@ -987,34 +987,6 @@ iteration(label_resolution)
 {
      continue_it();
 }
-#define NODE NOP_instruction
-iteration(semantics)
-{
-    continue_it();
-}
-iteration(codegen)
-{
-    fprintf(file, "%c", 0x90);
-    continue_it();
-}
-iteration(label_resolution)
-{
-     continue_it();
-}
-#define NODE RET_instruction
-iteration(semantics)
-{
-    continue_it();
-}
-iteration(codegen)
-{
-    fprintf(file, "%c", 0xC3);
-    continue_it();
-}
-iteration(label_resolution)
-{
-     continue_it();
-}
 #define NODE Plus_Minus
 iteration(semantics)
 {
@@ -2183,6 +2155,385 @@ iteration(codegen)
             hexStringToByteArray(file, var_0->var.var_4->token->value, 8);
         break;
     }
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CBW_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c", 0x66, 0x98);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CWDE_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x98);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CWD_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c", 0x66, 0x99);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CDQ_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x99);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE NOP_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x90);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE XLAT_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xD7);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE HLT_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xF4);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE LEAVE_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xC9);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE RET_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xC3);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CMC_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xF5);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CLC_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xF8);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE STC_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xF9);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CLI_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xFA);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE STI_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xFB);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CLD_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xFC);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE STD_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xFD);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE SAHF_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x9E);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE LAHF_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x9F);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE INT_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xCD);
+    hexStringToByteArray(file, var_0->var_2->token->value, 1);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE RDTSC_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c", 0x0F, 31);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CPUID_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c", 0x0F, 0xA2);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE REP_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xF3);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE REPN_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0xF2);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CS_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x2E);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE DS_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x3E);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE FS_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x64);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE GS_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x65);
     continue_it();
 }
 iteration(label_resolution)

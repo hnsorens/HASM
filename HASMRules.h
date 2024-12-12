@@ -47,6 +47,38 @@ createCompilerH(
         token(JGE, "^JGE")
         token(JG, "^JG")
         
+        token(CBW, "^CBW")
+        token(CWDE, "^CWDE")
+        token(CWD, "^CWD")
+        token(CDQ, "^CDQ")
+        token(NOP, "^NOP")
+        token(XLAT, "^XLAT")
+        token(HLT, "^HLT")
+        token(LEAVE, "^LEAVE")
+        token(RET, "^RET")
+        token(CMC, "^CMC")
+        token(CLC, "^CLC")
+        token(STC, "^STC")
+        token(CLI, "^CLI")
+        token(STI, "^STI")
+        token(CLD, "^CLD")
+        token(STD, "^STD")
+        token(SAHF, "^SAHF")
+        token(LAHF, "^LAHF")
+        token(INT, "^INT")
+        token(RDTSC, "^RDTSC")
+        token(CPUID, "^CPUID")
+        token(REP, "^REP")
+        token(REPE, "^REPE")
+        token(REPZ, "^REPZ")
+        token(REPNE, "^REPNE")
+        token(REPNZ, "^REPNZ")
+        token(CS, "^CS")
+        token(DS, "^DS")
+        token(FS, "^FS")
+        token(GS, "^GS")
+        
+
         token(POP, "^POP")
         token(PUSH, "^PUSH")
         token(MOV, "^MOV")
@@ -67,8 +99,6 @@ createCompilerH(
         token(DEC, "^DEC")
         token(MUL, "^MUL")
         token(DIV, "^DIV")
-        token(NOP, "^NOP")
-        token(RET, "^RET")
         token(RAX, "^RAX")
         token(EAX, "^EAX")
         token(AX, "^AX")
@@ -204,26 +234,41 @@ createCompilerH(
             bitwise_cl_scaled_instruction,
             bitwise_cl_complex_instruction,
             bitwise_cl_offset_instruction,
-            RET_instruction,
-            NOP_instruction,
             Label,
             jump_label,
-            syscall_instruction
+            syscall_instruction,
+            CBW_instruction,
+            CWDE_instruction,
+            CWD_instruction,
+            CDQ_instruction,
+            NOP_instruction,
+            XLAT_instruction,
+            HLT_instruction,
+            LEAVE_instruction,
+            RET_instruction,
+            CMC_instruction,
+            CLC_instruction,
+            STC_instruction,
+            CLI_instruction,
+            STI_instruction,
+            CLD_instruction,
+            STD_instruction,
+            SAHF_instruction,
+            LAHF_instruction,
+            INT_instruction,
+            RDTSC_instruction,
+            CPUID_instruction,
+            REP_instruction,
+            REPN_instruction,
+            CS_instruction,
+            DS_instruction,
+            FS_instruction,
+            GS_instruction
         )
     )
     nodeNext(Section_Data_Statement
         any_rule(
             Variable
-        )
-    )
-    node(NOP_instruction
-        all_rule(
-            NOP
-        )
-    )
-    node(RET_instruction
-        all_rule(
-            RET
         )
     )
     node(Plus_Minus
@@ -895,6 +940,145 @@ createCompilerH(
             CHAR_LITERAL,
             NUMBER_LITERAL,
             HEX_LITERAL
+        )
+    )
+    node(CBW_instruction
+        any_rule(
+            CBW
+        )
+    )
+    node(CWDE_instruction
+        any_rule(
+            CWDE
+        )
+    )
+    node(CWD_instruction
+        any_rule(
+            CWD
+        )
+    )
+    node(CDQ_instruction
+        any_rule(
+            CDQ
+        )
+    )
+    node(NOP_instruction
+        any_rule(
+            NOP
+        )
+    )
+    node(XLAT_instruction
+        any_rule(
+            XLAT
+        )
+    )
+    node(HLT_instruction
+        any_rule(
+            HLT
+        )
+    )
+    node(LEAVE_instruction
+        any_rule(
+            LEAVE
+        )
+    )
+    node(RET_instruction
+        any_rule(
+            RET
+        )
+    )
+    node(CMC_instruction
+        any_rule(
+            CMC
+        )
+    )
+    node(CLC_instruction
+        any_rule(
+            CLC
+        )
+    )
+    node(STC_instruction
+        any_rule(
+            STC
+        )
+    )
+    node(CLI_instruction
+        any_rule(
+            CLI
+        )
+    )
+    node(STI_instruction
+        any_rule(
+            STI
+        )
+    )
+    node(CLD_instruction
+        any_rule(
+            CLD
+        )
+    )
+    node(STD_instruction
+        any_rule(
+            STD
+        )
+    )
+    node(SAHF_instruction
+        any_rule(
+            SAHF
+        )
+    )
+    node(LAHF_instruction
+        any_rule(
+            LAHF
+        )
+    )
+    node(INT_instruction
+        all_rule(
+            INT,
+            HEX_LITERAL
+        )
+    )
+    node(RDTSC_instruction
+        any_rule(
+            RDTSC
+        )
+    )
+    node(CPUID_instruction
+        any_rule(
+            CPUID
+        )
+    )
+    node(REP_instruction
+        any_rule(
+            REP,
+            REPE,
+            REPZ
+        )
+    )
+    node(REPN_instruction
+        any_rule(
+            REPNE,
+            REPNZ
+        )
+    )
+    node(CS_instruction
+        any_rule(
+            CS
+        )
+    )
+    node(DS_instruction
+        any_rule(
+            DS
+        )
+    )
+    node(FS_instruction
+        any_rule(
+            FS
+        )
+    )
+    node(GS_instruction
+        any_rule(
+            GS
         )
     )
 
