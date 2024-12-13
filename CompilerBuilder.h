@@ -634,6 +634,7 @@ struct compilerName_##name_ * compilerName_##Create##name_(struct compilerName_#
 #define CONTINUE_H_ITERATION_MACRO__NODE_NEXT_IMPL(compilerName_, name_, ...) NEXT_CONTINUE_H_DECLARE_ITERATION
 #define TOKEN_H_ITERATION_MACRO__NODE_NEXT_IMPL(compilerName_, name_, ...) TOKEN_H_DECLARE_ITERATION
 
+#define dep_token(name_, str_) ,TOKEN_IMPL(name_, "^$a")
 #define token(name_, str_) ,TOKEN_IMPL(name_, str_)
 #define ENUM__TOKEN_IMPL(name_, str_) ENUM__TOKEN_IMPL_IMPL(COMPILER, name_, str_)
 #define ENUM__TOKEN_IMPL_IMPL(compilerName_, name_, str_) ENUM__TOKEN_IMPL_IMPL_IMPL(compilerName_, name_, str_)
