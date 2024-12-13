@@ -46,6 +46,16 @@ createCompilerH(
         token(JL, "^JL")
         token(JGE, "^JGE")
         token(JG, "^JG")
+
+        token(WAIT, "^WAIT")
+        token(PUSHF, "^PUSHF")
+        token(POPF, "^POPF")
+        token(CQO, "^CQO")
+        token(RDTSCP, "^RDTSCP")
+        token(SYSENTER "^SYSENTER")
+        token(SYSEXIT, "^SYSEXIT")
+
+        token(CALL, "^CALL")
         
         token(CBW, "^CBW")
         token(CWDE, "^CWDE")
@@ -1082,9 +1092,44 @@ createCompilerH(
         )
     )
 
+
+    node(WAIT_instruction
+        any_rule(
+            WAIT
+        )
+    )
+    node(PUSHF_instruction
+        any_rule(
+            PUSHF
+        )
+    )
+    node(POPF_instruction
+        any_rule(
+            POPF
+        )
+    )
+    node(CQO_instruction
+        any_rule(
+            CQO
+        )
+    )
+    node(RDTSCP_instruction
+        any_rule(
+            RDTSCP
+        )
+    )
+    node(SYSENTER_instruction
+        any_rule(
+            SYSENTER
+        )
+    )
+    node(SYSEXIT_instruction
+        any_rule(
+            SYSEXIT
+        )
+    )
+
     iterationStep(semantics)
     iterationStep(codegen)
     iterationStep(label_resolution)
 )
-
-

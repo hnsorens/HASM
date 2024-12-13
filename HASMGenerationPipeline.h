@@ -2540,3 +2540,101 @@ iteration(label_resolution)
 {
     continue_it();
 }
+#define NODE WAIT_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x9B);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE PUSHF_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x9C);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE POPF_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c", 0x9D);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE CQO_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c", 0x48, 0x99);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE RDTSCP_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c%c", 0x0F, 0x01, 0xF9);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE SYSENTER_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c", 0x0F, 0x34);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
+#define NODE SYSEXIT_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fprintf(file, "%c%c", 0x0F, 0x35);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    continue_it();
+}
