@@ -1243,6 +1243,31 @@ iteration(label_resolution)
 {
      continue_it();
 }
+#define NODE Multi_Purpose_instruction_w_lea
+iteration(semantics)
+{
+    continue_it();
+    switch(var_0->var_index)
+    {
+        case 1:
+        var_0->r = var_0->var.var_1->r;
+        var_0->imm = var_0->var.var_1->imm;
+        break;
+        case 2:
+        var_0->r = 0x8C;
+        var_0->imm = 0xD0;
+        break;
+        
+    }
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
 #define NODE Jump_instruction
 iteration(semantics)
 {

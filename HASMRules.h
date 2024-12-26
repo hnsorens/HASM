@@ -381,6 +381,14 @@ createCompilerH(
         var(unsigned char, r)
         var(unsigned char, imm)
     )
+    node(Multi_Purpose_instruction_w_lea
+        any_rule(
+            Multi_Purpose_instruction,
+            LEA
+        )
+        var(unsigned char, r)
+        var(unsigned char, imm)
+    )
     node(Bitwise_instruction
         any_rule(
             ROL,
@@ -485,7 +493,7 @@ createCompilerH(
     )
     node(MOV_r_direct_instruction
         all_rule(
-            Multi_Purpose_instruction,
+            Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
             HEX_LITERAL,
@@ -494,7 +502,7 @@ createCompilerH(
     )
     node(MOV_r_indirect_instruction
         all_rule(
-            Multi_Purpose_instruction,
+            Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
             Register,
@@ -503,7 +511,7 @@ createCompilerH(
     )
     node(MOV_r_offset_instruction
         all_rule(
-             Multi_Purpose_instruction,
+            Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
             Register,
@@ -514,7 +522,7 @@ createCompilerH(
     )
     node(MOV_r_indexed_instruction
         all_rule(
-            Multi_Purpose_instruction,
+            Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
             Register,
@@ -525,7 +533,7 @@ createCompilerH(
     )
     node(MOV_r_scaled_instruction
         all_rule(
-            Multi_Purpose_instruction,
+            Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
             Register,
@@ -538,7 +546,7 @@ createCompilerH(
     )
     node(MOV_r_complex_instruction
         all_rule(
-            Multi_Purpose_instruction,
+            Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
             Register,
