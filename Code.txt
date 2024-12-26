@@ -7,18 +7,17 @@ SECTION .data
 SECTION .text
 
 _start:
-    MOV ECX 0x00
+    CALL beg
+    CALL beg
+    JMP end
 beg:
-    PUSH RCX
     MOV EDX 0x0E
     MOV ECX msg
     MOV EBX 0x01
     MOV EAX 0x04
     INT 0x80
-    POP RCX
-    INC RCX
-    CMP RCX 0x0A
-    JNE beg
+    RET
+end:
     MOV EBX 0x00
     MOV EAX 0x01
     INT 0x80

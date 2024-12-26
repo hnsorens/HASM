@@ -280,7 +280,8 @@ createCompilerH(
             CS_instruction,
             DS_instruction,
             FS_instruction,
-            GS_instruction
+            GS_instruction,
+            call_label
         )
     )
     nodeNext(Section_Data_Statement
@@ -1219,6 +1220,13 @@ createCompilerH(
     node(jmp_label
         all_rule(
             JMP,
+            IDENTIFIER
+        )
+        var(long, ptr)
+    )
+    node(call_label
+        all_rule(
+            CALL,
             IDENTIFIER
         )
         var(long, ptr)

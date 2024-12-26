@@ -2825,7 +2825,36 @@ iteration(label_resolution)
     int position = findLabel(labels, var_0->var_2->token->value);
     if (position != -1)
     {
-        int offset = position - var_0->ptr - 6;
+        int offset = position - var_0->ptr - 5;
+
+        replace_bytes(file, var_0->ptr+1, 1, offset & 0xFF);
+        replace_bytes(file, var_0->ptr+2, 1, (offset >> 8) & 0xFF);
+        replace_bytes(file, var_0->ptr+3, 1, (offset >> 16) & 0xFF);
+        replace_bytes(file, var_0->ptr+4, 1, (offset >> 24) & 0xFF);
+    }
+    else
+    {
+        printf("ERROR: Label does not exist\n");
+    }
+    continue_it();
+}
+#define NODE call_label
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    var_0->ptr = GetFileSize(file);
+    fprintf(file, "%c%c%c%c%c", 0xE8,0,0,0,0);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    int position = findLabel(labels, var_0->var_2->token->value);
+    if (position != -1)
+    {
+        int offset = position - var_0->ptr - 5;
 
         replace_bytes(file, var_0->ptr+1, 1, offset & 0xFF);
         replace_bytes(file, var_0->ptr+2, 1, (offset >> 8) & 0xFF);
