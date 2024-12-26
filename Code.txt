@@ -1,20 +1,24 @@
 GLOBAL _start
 
 SECTION .data
-    message DB "HELLO WORLD!" 0x0A
+
+    msg DB "Hello, World!" 0x0A
 
 SECTION .text
+
 _start:
-    MOV RCX 0x03
-print_hello:
-    MOV RAX 0x01
-    MOV RDI 0x01
-    MOV RSI message
-    MOV RDX 0x0D
-    SYSCALL
-    DEC RCX
-    CMP RCX 0x00
-    JNE print_hello
-    MOV RAX 0x3C
-    XOR RDI RDI
-    SYSCALL
+    MOV ECX 0x00
+beg:
+    PUSH RCX
+    MOV EDX 0x0E
+    MOV ECX msg
+    MOV EBX 0x01
+    MOV EAX 0x04
+    INT 0x80
+    POP RCX
+    INC RCX
+    CMP RCX 0x0A
+    JNE beg
+    MOV EBX 0x00
+    MOV EAX 0x01
+    INT 0x80

@@ -224,6 +224,14 @@ createCompilerH(
             scaled_instruction,
             complex_instruction,
             offset_instruction,
+
+            jmp_r_instruction,
+            jmp_indirect_instruction,
+            jmp_index_instruction,
+            jmp_scaled_instruction,
+            jmp_complex_instruction,
+            jmp_offset_instruction,
+
             pp_r_instruction,
             pp_indirect_instruction,
             pp_index_instruction,
@@ -244,6 +252,7 @@ createCompilerH(
             bitwise_cl_offset_instruction,
             Label,
             jump_label,
+            jmp_label,
             syscall_instruction,
             CBW_instruction,
             CWDE_instruction,
@@ -1126,6 +1135,87 @@ createCompilerH(
             SYSEXIT
         )
     )
+
+
+    node(jmp_register
+        any_rule(
+            Register16,
+            Register64
+        )
+    )
+    node(jmp_r_instruction
+        all_rule(
+            JMP,
+            Register
+        )
+    )
+    node(jmp_indirect_instruction
+        all_rule(
+            JMP,
+            Size_Specifier,
+            OPEN_BRACK,
+            Register,
+            CLOSE_BRACK
+        )
+    )
+    node(jmp_index_instruction
+        all_rule(
+            JMP,
+            Size_Specifier,
+            OPEN_BRACK,
+            Register,
+            PLUS,
+            Register,
+            CLOSE_BRACK
+        )
+    )
+    node(jmp_scaled_instruction
+        all_rule(
+            JMP,
+            Size_Specifier,
+            OPEN_BRACK,
+            Register,
+            PLUS,
+            Register,
+            MULTIPLY,
+            NUMBER_LITERAL,
+            CLOSE_BRACK
+        )
+    )
+    node(jmp_complex_instruction
+        all_rule(
+            JMP,
+            Size_Specifier,
+            OPEN_BRACK,
+            Register,
+            PLUS,
+            Register,
+            MULTIPLY,
+            NUMBER_LITERAL,
+            Plus_Minus,
+            NUMBER_LITERAL,
+            CLOSE_BRACK
+        )
+    )
+    node(jmp_offset_instruction
+        all_rule(
+            JMP,
+            Size_Specifier,
+            OPEN_BRACK,
+            Register,
+            Plus_Minus,
+            NUMBER_LITERAL,
+            CLOSE_BRACK
+        )
+    )
+    node(jmp_label
+        all_rule(
+            JMP,
+            IDENTIFIER
+        )
+        var(long, ptr)
+    )
+
 
     iterationStep(semantics)
     iterationStep(codegen)

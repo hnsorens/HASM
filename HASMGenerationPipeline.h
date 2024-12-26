@@ -1,8 +1,8 @@
 #include "HASMRules.h"
 
-char* long_to_hex_string(long value) {
+char* long_to_hex_string(int value) {
     // Calculate the size of the string needed: 2 hex digits per byte + "0x" + null terminator
-    size_t byte_count = sizeof(long);
+    size_t byte_count = sizeof(int);
     size_t string_size = 2 * byte_count + 3; // "0x" + 2 digits per byte + null terminator
 
     // Allocate memory for the string
@@ -846,6 +846,73 @@ void fileprint_pp_complex_instruction(FILE* file, u_int8_t instruction, u_int8_t
 #pragma endregion
 
 
+
+
+
+void fileprint_jmp_r_instruction(FILE* file, int instruction, u_int8_t group, int register_size, int register_value)
+{
+    if (register_size == 16)
+    {
+        fprintf(file, "%c", 0x66);
+    }
+    fprintf(file, "%c", 0xFF);
+    fprintf(file, "%c", 0xE0 + register_value);
+}
+void fileprint_jmp_indirect_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int register_size, int register_value)
+{
+    fileprint_jmp_offset_instruction(file, instruction, group, size_specifier, register_size, register_value, 0);
+}
+// CHANGE THE WAY WE ARE DOING instruction SO IT IS PROPER
+void fileprint_jmp_offset_instruction(FILE* file, u_int8_t instruction, u_int8_t group, int size_specifier, int register_size, int register_value, int offset)
+{
+    int size_offset = size_specifier / 8;
+
+    if (register_size == 32)
+    {
+        fprintf(file, "%c", 0x67);
+    }
+
+    fprintf(file, "%c", 0xFF);
+    handleLoadOffset(file, offset + size_offset, instruction, register_value);
+}
+void fileprint_jmp_scaled_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int left_register_size, int left_register_value, int right_register_size, int right_register_value, int multiple)
+{
+    fileprint_jmp_complex_instruction(file, instruction, group, size_specifier, left_register_size, left_register_value, right_register_size, right_register_value, multiple, 0);
+}
+void fileprint_jmp_indexed_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int left_register_size, int left_register_value, int right_register_size, int right_register_value)
+{
+    fileprint_jmp_scaled_instruction(file, instruction, group, size_specifier, left_register_size, left_register_value, right_register_size, right_register_value, 1);
+}
+void fileprint_jmp_complex_instruction(FILE* file, u_int8_t instruction, u_int8_t group, int size_specifier, int left_register_size, int left_register_value, int right_register_size, int right_register_value, int multiple, int offset)
+{
+    int size_offset = size_specifier / 8;
+
+    if (left_register_size == 32)
+    {
+        fprintf(file, "%c", 0x67);
+    }
+
+    int mod = 0;
+    if (multiple == 1)
+    {
+        mod = 0b00;
+    }
+    else if (multiple == 2)
+    {
+        mod = 0b01;
+    }
+    else if (multiple == 4)
+    {
+        mod = 0b10;
+    }
+    else if (multiple == 8)
+    {
+        mod = 0b11;
+    }
+
+    fprintf(file, "%c", 0xFF);
+    handleComplexLoadOffset(file, offset + size_offset, mod, left_register_value, right_register_value, instruction);
+}
 
 
 struct Labels* labels;
@@ -1934,32 +2001,26 @@ iteration(semantics)
 }
 iteration(codegen)
 {
+    var_0->ptr = GetFileSize(file);
+    fprintf(file, "%c%c%c%c%c%c", 0x0F, 0x80 + var_0->var_1->instruction,0,0,0,0);
+    continue_it();
+}
+iteration(label_resolution)
+{
     int position = findLabel(labels, var_0->var_2->token->value);
     if (position != -1)
     {
-        int offset = position - GetFileSize(file) - 2;
+        int offset = position - var_0->ptr-6;
 
-        if (offset < -129 || offset > 128)
-        {
-            offset-=4;
-            fprintf(file, "%c%c", 0x0F, 0x80 + var_0->var_1->instruction);
-            fprintf(file, "%c%c%c%c", offset & 0xFF, (offset >> 8) & 0xFF, (offset >> 16) & 0xFF, (offset >> 24) & 0xFF);
-        }
-        else
-        {
-            fprintf(file, "%c", 0x70 + var_0->var_1->instruction);
-            fprintf(file, "%c", offset);
-        }
+        replace_bytes(file, var_0->ptr+2, 1, offset & 0xFF);
+        replace_bytes(file, var_0->ptr+3, 1, (offset >> 8) & 0xFF);
+        replace_bytes(file, var_0->ptr+4, 1, (offset >> 16) & 0xFF);
+        replace_bytes(file, var_0->ptr+5, 1, (offset >> 24) & 0xFF);
     }
     else
     {
         printf("ERROR: Label does not exist\n");
     }
-    var_0->ptr = GetFileSize(file);
-    continue_it();
-}
-iteration(label_resolution)
-{
     continue_it();
 }
 #define NODE syscall_instruction
@@ -2636,5 +2697,119 @@ iteration(codegen)
 }
 iteration(label_resolution)
 {
+    continue_it();
+}
+
+#define NODE jmp_r_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fileprint_jmp_r_instruction(file, 4, 0, var_0->var_2->reg_size, var_0->var_2->reg_value);
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE jmp_indirect_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fileprint_jmp_indirect_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value);
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE jmp_index_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fileprint_jmp_indexed_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value);
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE jmp_scaled_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fileprint_jmp_scaled_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE jmp_complex_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fileprint_jmp_complex_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value)*var_0->var_9->val);
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE jmp_offset_instruction
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    fileprint_jmp_offset_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, atoi(var_0->var_6->token->value)*var_0->var_5->val);
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
+#define NODE jmp_label
+iteration(semantics)
+{
+    continue_it();
+}
+iteration(codegen)
+{
+    var_0->ptr = GetFileSize(file);
+    fprintf(file, "%c%c%c%c%c", 0xE9,0,0,0,0);
+    continue_it();
+}
+iteration(label_resolution)
+{
+    int position = findLabel(labels, var_0->var_2->token->value);
+    if (position != -1)
+    {
+        int offset = position - var_0->ptr - 6;
+
+        replace_bytes(file, var_0->ptr+1, 1, offset & 0xFF);
+        replace_bytes(file, var_0->ptr+2, 1, (offset >> 8) & 0xFF);
+        replace_bytes(file, var_0->ptr+3, 1, (offset >> 16) & 0xFF);
+        replace_bytes(file, var_0->ptr+4, 1, (offset >> 24) & 0xFF);
+    }
+    else
+    {
+        printf("ERROR: Label does not exist\n");
+    }
     continue_it();
 }
