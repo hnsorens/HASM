@@ -243,7 +243,31 @@ void fileprint_r_r_instruction(FILE* file, u_int8_t instruction, int left_regist
 
 void fileprint_r_imm_instruction(FILE* file, u_int8_t instruction, int left_register_size, int left_register_value, const char* imm)
 {
-    if (instruction == 0xb0)
+    
+    if (instruction == 0xC0)
+    {
+        if (left_register_size == 8)
+        {
+            fprintf(file, "%c%c", 0xF6, 0xC0 + left_register_value);
+            hexStringToByteArray(file, imm, 1);
+        }
+        else if (left_register_size == 16)
+        {
+            fprintf(file, "%c%c%c", 0x66, 0xF7, 0xC0 + left_register_value);
+            hexStringToByteArray(file, imm, 2);
+        }
+        else if (left_register_size == 32)
+        {
+            fprintf(file, "%c%c", 0xF7, 0xC0 + left_register_value);
+            hexStringToByteArray(file, imm, 4);
+        }
+        else if (left_register_size == 64)
+        {
+            fprintf(file, "%c%c%c", 0x48, 0xF7, 0xC0 + left_register_value);
+            hexStringToByteArray(file, imm, 4);
+        }
+    }
+    else if (instruction == 0xb0)
     {
         if (left_register_size == 8)
         {
@@ -330,7 +354,7 @@ void fileprint_r_imm_instruction(FILE* file, u_int8_t instruction, int left_regi
 // MOV r [r]
 void fileprint_r_indirect_instruction(FILE* file, u_int8_t instruction, int inverse, int left_register_size, int left_register_value, int right_register_size, int right_register_value)
 {
-    if (inverse)
+    if (inverse || instruction == 0x88 || instruction == 0x86)
     {
         instruction -= 2;
     }
@@ -360,7 +384,7 @@ void fileprint_r_indirect_instruction(FILE* file, u_int8_t instruction, int inve
 // mov r [n]
 void fileprint_r_direct_instruction(FILE* file, u_int8_t instruction, int inverse, int left_register_size, int left_register_value, const char* hex)
 {
-    if (inverse)
+    if (inverse || instruction == 0x88 || instruction == 0x86)
     {
         instruction -= 2;
     }
@@ -389,7 +413,7 @@ void fileprint_r_direct_instruction(FILE* file, u_int8_t instruction, int invers
 // mov r [r+n]
 void fileprint_r_offset_instruction(FILE* file, u_int8_t instruction, int inverse, int offset, int left_register_size, int left_register_value, int right_register_size, int right_register_value)
 {
-    if (inverse)
+    if (inverse || instruction == 0x88 || instruction == 0x86)
     {
         instruction -= 2;
     }
@@ -424,7 +448,7 @@ void fileprint_r_offset_instruction(FILE* file, u_int8_t instruction, int invers
 // mov r [r+r*n]
 void fileprint_r_scaled_instruction(FILE* file, u_int8_t instruction, int inverse, int left_register_size, int left_register_value, int right_left_register_size, int right_left_register_value, int right_right_register_size, int right_right_register_value, int multiple)
 {
-    if (inverse)
+    if (inverse || instruction == 0x88 || instruction == 0x86)
     {
         instruction -= 2;
     }
@@ -478,7 +502,7 @@ void fileprint_r_indexed_instruction(FILE* file, u_int8_t instruction, int inver
 // mov r [r+r*n+n]
 void fileprint_r_complex_instruction(FILE* file, u_int8_t instruction, int inverse, int left_register_size, int left_register_value, int right_left_register_size, int right_left_register_value, int right_right_register_size, int right_right_register_value, int multiple, int offset)
 {
-    if (inverse)
+    if (inverse || instruction == 0x88 || instruction == 0x86)
     {
         instruction-=2;
     }
@@ -527,9 +551,6 @@ void fileprint_r_complex_instruction(FILE* file, u_int8_t instruction, int inver
         handleComplexLoadOffset(file, offset, mod, right_left_register_value, right_right_register_value, left_register_value);
     }
 }
-
-
-
 
 
 #pragma endregion
@@ -1187,6 +1208,62 @@ iteration(label_resolution)
 {
      continue_it();
 }
+#define NODE Multi_Purpose_instruction_no_xchg
+iteration(semantics)
+{
+    continue_it();
+    switch(var_0->var_index)
+    {
+        case 1:
+        var_0->r = 0x8A;
+        var_0->imm = 0xB0;
+        break;
+        case 2:
+        var_0->r = 0x02;
+        var_0->imm = 0xC0;
+        break;
+        case 3:
+        var_0->r = 0x2A;
+        var_0->imm = 0xE8;
+        break;
+        case 4:
+        var_0->r = 0x0A;
+        var_0->imm = 0xC8;
+        break;
+        case 5:
+        var_0->r = 0x22;
+        var_0->imm = 0xE0;
+        break;
+        case 6:
+        var_0->r = 0x3A;
+        var_0->imm = 0xF8;
+        break;
+        case 7:
+        var_0->r = 0x12;
+        var_0->imm = 0xD0;
+        break;
+        case 8:
+        var_0->r = 0x1A;
+        var_0->imm = 0xD8;
+        break;
+        case 9:
+        var_0->r = 0x32;
+        var_0->imm = 0xF0;
+        break;
+        case 10:
+        var_0->r = 0x86;
+        var_0->imm = 0xC0;
+        break;
+    }
+}
+iteration(codegen)
+{
+    continue_it();
+}
+iteration(label_resolution)
+{
+     continue_it();
+}
 #define NODE Multi_Purpose_instruction
 iteration(semantics)
 {
@@ -1230,6 +1307,10 @@ iteration(semantics)
         var_0->imm = 0xF0;
         break;
         case 10:
+        var_0->r = 0x88;
+        var_0->imm = 0xC0;
+        break;
+        case 11:
         var_0->r = 0x86;
         var_0->imm = 0xC0;
         break;

@@ -377,6 +377,23 @@ createCompilerH(
             ADC,
             SBB,
             XOR,
+            XCHG,
+            TEST
+        )
+        var(unsigned char, r)
+        var(unsigned char, imm)
+    )
+    node(Multi_Purpose_instruction_no_xchg
+        any_rule(
+            MOV,
+            ADD,
+            SUB,
+            OR,
+            AND,
+            CMP,
+            ADC,
+            SBB,
+            XOR,
             TEST
         )
         var(unsigned char, r)
@@ -487,7 +504,7 @@ createCompilerH(
     )
     node(MOV_r_imm_instruction
         all_rule(
-            Multi_Purpose_instruction,
+            Multi_Purpose_instruction_no_xchg,
             Register,
             Hex_Identifier
         )
