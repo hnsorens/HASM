@@ -1,5 +1,17 @@
   Compiler Builder Docs  
 
+    ## Installation
+
+  To integrate the Macro-Based Compiler Builder into your project:
+
+  1. Clone this repository:
+    git clone https://github.com/HnsorensSoftware/MacroCompilerBuilder
+    cd macro-compiler-builder
+
+  2. To Compile, run:
+     HASM ASM_file Output
+
+
 *   [Overview](#Overview)
 *   [Immediate](#Immediate)
 *   [Registers](#Registers)
@@ -223,6 +235,7 @@ Memory access size depends on the instruction and can vary between 8-bit, 16-bit
 So memory is represented as the following:
 
     BYTE [...]
+    
 
 Data Movement and Stack Operations
 ==================================
