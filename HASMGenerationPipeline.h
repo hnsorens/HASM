@@ -76,7 +76,7 @@ u_int32_t findLabel(struct Labels* labels, char* label)
             return labels->labels[i].ptr;
         }
     }
-    printf("Didnt find label %i \n", labels->count);
+    printf("Didnt find label %s. \n", label);
     return -1;
 }
 
@@ -940,21 +940,21 @@ struct Labels* labels;
 
 #define COMPILER HASM
 #define NODE Root
-iteration(semantics)
+recurse(semantics)
 {
     labels = createLabels();
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Global
-iteration(semantics)
+recurse(semantics)
 {
     beggining_label = var_0->var_2->token->value;
     var_0->ehdr = (Elf64_Ehdr) {
@@ -999,11 +999,11 @@ iteration(semantics)
 
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     replace_bytes(file, 0x18, 4, 0x400000 + beggining_offset);
     replace_bytes(file, 0x60, 4, GetFileSize(file) - 0x78);
@@ -1011,72 +1011,72 @@ iteration(label_resolution)
      continue_it();
 }
 #define NODE Section_Text_Statement
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Statement
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Section_Data_Statement
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Section_Text
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Section_Data
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Plus_Minus
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     switch (var_0->var_index)
@@ -1089,21 +1089,21 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Label
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     var_0->value = var_0->var_1->token->value;
 }
-iteration(codegen)
+recurse(codegen)
 {
     var_0->ptr = GetFileSize(file);
     struct Label label;
@@ -1116,68 +1116,68 @@ iteration(codegen)
     }
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Register64
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     var_0->reg_value = var_0->var_index-1;
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Register32
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     var_0->reg_value = var_0->var_index-1;
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Register16
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     var_0->reg_value = var_0->var_index-1;
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Register8
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     var_0->reg_value = var_0->var_index-1;
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Register
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     switch(var_0->var_index)
@@ -1200,16 +1200,16 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Multi_Purpose_instruction_no_xchg
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     switch(var_0->var_index)
@@ -1256,16 +1256,16 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Multi_Purpose_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     switch(var_0->var_index)
@@ -1316,16 +1316,16 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Multi_Purpose_instruction_w_lea
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     switch(var_0->var_index)
@@ -1341,30 +1341,30 @@ iteration(semantics)
         
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Jump_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     var_0->instruction = var_0->var_index-1;
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Miscellaneous_Arithmetic_instruction
-iteration(semantics)
+recurse(semantics)
 {
     var_0->group = 0xF7;
     continue_it();
@@ -1390,16 +1390,16 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Inc_Dec_instruction
-iteration(semantics)
+recurse(semantics)
 {
     var_0->group = 0xFF;
     continue_it();
@@ -1413,16 +1413,16 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Push_Pop_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     switch (var_0->var_index)
@@ -1437,16 +1437,16 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE unary_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     switch (var_0->var_index)
@@ -1461,16 +1461,16 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Size_Specifier
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
     switch (var_0->var_index)
@@ -1489,47 +1489,47 @@ iteration(semantics)
         break;
     }
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_r_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_r_instruction(file, var_0->var_1->r, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE Hex_Identifier
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE MOV_r_imm_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     long value;
     if (var_0->var_3->var_index == 1)
@@ -1545,359 +1545,359 @@ iteration(codegen)
     
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_r_direct_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_direct_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->token->value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_r_indirect_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_indirect_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_r_offset_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_offset_instruction(file, var_0->var_1->r, 0, atoi(var_0->var_6->token->value) * var_0->var_5->val, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_r_indexed_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_indexed_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_r_scaled_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_scaled_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_r_complex_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_complex_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value) * var_0->var_9->val);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_direct_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_direct_instruction(file, var_0->var_1->r, 1, var_0->var_5->reg_size, var_0->var_5->reg_value, var_0->var_3->token->value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_indirect_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_indirect_instruction(file, var_0->var_1->r, 1, var_0->var_5->reg_size, var_0->var_5->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_offset_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_offset_instruction(file, var_0->var_1->r, 1, atoi(var_0->var_5->token->value) * var_0->var_4->val, var_0->var_7->reg_size, var_0->var_7->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_indexed_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_indexed_instruction(file, var_0->var_1->r, 1, var_0->var_7->reg_size, var_0->var_7->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value, var_0->var_5->reg_size, var_0->var_5->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_scaled_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_scaled_instruction(file, var_0->var_1->r, 1, var_0->var_9->reg_size, var_0->var_9->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value, var_0->var_5->reg_size, var_0->var_5->reg_value, atoi(var_0->var_7->token->value));
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE MOV_complex_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_complex_instruction(file, var_0->var_1->r, 1, var_0->var_11->reg_size, var_0->var_11->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value, var_0->var_5->reg_size, var_0->var_5->reg_value, atoi(var_0->var_7->token->value), atoi(var_0->var_9->token->value) * var_0->var_8->val);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_r_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->reg_size, var_0->var_2->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE indirect_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_indirect_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE index_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_indexed_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE scaled_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_scaled_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE complex_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_complex_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value)*var_0->var_9->val);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE offset_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_offset_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, atoi(var_0->var_6->token->value)*var_0->var_5->val);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE pp_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_pp_r_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->reg_size, var_0->var_2->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE pp_indirect_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_pp_indirect_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE pp_index_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_pp_indexed_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE pp_scaled_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_pp_scaled_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE pp_complex_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_pp_complex_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value)*var_0->var_9->val);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE pp_offset_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_pp_offset_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, atoi(var_0->var_6->token->value)*var_0->var_5->val);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 
 #define NODE jump_label
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     var_0->ptr = GetFileSize(file);
     fprintf(file, "%c%c%c%c%c%c", 0x0F, 0x80 + var_0->var_1->instruction,0,0,0,0);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     int position = findLabel(labels, var_0->var_2->token->value);
     if (position != -1)
@@ -1916,38 +1916,38 @@ iteration(label_resolution)
     continue_it();
 }
 #define NODE syscall_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fprintf(file, "%c%c", 0x0F, 0x05);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Directive
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Variable
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     struct Label label;
     label.label = var_0->var_1->token->value;
@@ -1955,29 +1955,29 @@ iteration(codegen)
     addLabel(labels, label);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Variable_Value
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Variable_Value_DB
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     switch (var_0->var_index)
     {
@@ -2002,16 +2002,16 @@ iteration(codegen)
     }
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Variable_Value_DW
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     switch (var_0->var_index)
     {
@@ -2038,16 +2038,16 @@ iteration(codegen)
     }
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Variable_Value_DD
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     switch (var_0->var_index)
     {
@@ -2074,16 +2074,16 @@ iteration(codegen)
     }
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE Variable_Value_DQ
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     switch (var_0->var_index)
     {
@@ -2110,152 +2110,152 @@ iteration(codegen)
     }
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 
 #define NODE NOP_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fprintf(file, "%c", 0x90);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 #define NODE INT_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fprintf(file, "%c", 0xCD);
     hexStringToByteArray(file, var_0->var_2->token->value, 1);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 
 #define NODE WAIT_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fprintf(file, "%c", 0x9B);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }
 
 #define NODE jmp_r_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_jmp_r_instruction(file, 4, 0, var_0->var_2->reg_size, var_0->var_2->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE jmp_indirect_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_jmp_indirect_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE jmp_index_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_jmp_indexed_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE jmp_scaled_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_jmp_scaled_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE jmp_complex_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_jmp_complex_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value)*var_0->var_9->val);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE jmp_offset_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fileprint_jmp_offset_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, atoi(var_0->var_6->token->value)*var_0->var_5->val);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
      continue_it();
 }
 #define NODE jmp_label
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     var_0->ptr = GetFileSize(file);
     fprintf(file, "%c%c%c%c%c", 0xE9,0,0,0,0);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     int position = findLabel(labels, var_0->var_2->token->value);
     if (position != -1)
@@ -2274,17 +2274,17 @@ iteration(label_resolution)
     continue_it();
 }
 #define NODE call_label
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     var_0->ptr = GetFileSize(file);
     fprintf(file, "%c%c%c%c%c", 0xE8,0,0,0,0);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     int position = findLabel(labels, var_0->var_2->token->value);
     if (position != -1)
@@ -2303,16 +2303,16 @@ iteration(label_resolution)
     continue_it();
 }
 #define NODE RET_instruction
-iteration(semantics)
+recurse(semantics)
 {
     continue_it();
 }
-iteration(codegen)
+recurse(codegen)
 {
     fprintf(file, "%c", 0xC3);
     continue_it();
 }
-iteration(label_resolution)
+recurse(label_resolution)
 {
     continue_it();
 }

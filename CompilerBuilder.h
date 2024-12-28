@@ -203,8 +203,8 @@ _192, _193, _194, _195, _196, _197, _198, _199, _200, _201, _202, _203, _204, _2
 #define inc_127 128
 #pragma endregion
 
-#define createCompilerH(contents_) CREATE_COMPILER_H_IMPL(COMPILER contents_)
-#define iteration(name_) IT_IMPL(COMPILER, name_, NODE)
+#define createCompiler(contents_) CREATE_COMPILER_H_IMPL(COMPILER contents_)
+#define recurse(name_) IT_IMPL(COMPILER, name_, NODE)
 #define IT_IMPL(compilerName_, name_, node_) IT_IMPL_IMPL(compilerName_, name_, node_)
 #define IT_IMPL_IMPL(compilerName_, name_, node_) void compilerName_##name_##node_(FILE* file, struct compilerName_##node_ * var_0, void (*continue_function)(FILE*, void*))
 

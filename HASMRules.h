@@ -10,8 +10,9 @@ long beggining_offset = 0;
 char* beggining_label = 0;
 
 #define COMPILER HASM
-createCompilerH(
+createCompiler(
     tokens(
+        token(COMMENT, "^;[^\\\n]*")
         token(ADC, "^ADC")
         token(SBB, "^SBB")
         token(LEA, "^LEA")
@@ -124,7 +125,8 @@ createCompilerH(
         token(WHITESPACE, "\\s+")
     )
     ignoreTokens(
-        WHITESPACE
+        COMMENT,
+        WHITESPACE        
     )
     node(Root
         all_rule(
