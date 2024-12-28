@@ -12,48 +12,8 @@ char* beggining_label = 0;
 #define COMPILER HASM
 createCompilerH(
     tokens(
-        dep_token(ROR, "^ROR")
-        dep_token(ROL, "^ROL")
-        dep_token(RCL, "^RCL")
-        dep_token(RCR, "^RCR")
-        dep_token(SHL, "^SHL")
-        dep_token(SAL, "^SAL")
-        dep_token(SHR, "^SHR")
-        dep_token(SAR, "^SAR")
-        dep_token(PUSHF, "^PUSHF")
-        dep_token(POPF, "^POPF")
-        dep_token(CQO, "^CQO")
-        dep_token(RDTSCP, "^RDTSCP")
-        dep_token(SYSENTER, "^SYSENTER")
-        dep_token(SYSEXIT, "^SYSEXIT")
-        dep_token(CBW, "^CBW")
-        dep_token(CWDE, "^CWDE")
-        dep_token(CWD, "^CWD")
-        dep_token(CDQ, "^CDQ")
-        dep_token(HLT, "^HLT")
-        dep_token(LEAVE, "^LEAVE")
-        dep_token(CMC, "^CMC")
-        dep_token(CLC, "^CLC")
-        dep_token(STC, "^STC")
-        dep_token(CLI, "^CLI")
-        dep_token(STI, "^STI")
-        dep_token(CLD, "^CLD")
-        dep_token(STD, "^STD")
-        dep_token(SAHF, "^SAHF")
-        dep_token(LAHF, "^LAHF")
-        dep_token(RDTSC, "^RDTSC")
-        dep_token(CPUID, "^CPUID")
-        dep_token(REP, "^REP")
-        dep_token(REPE, "^REPE")
-        dep_token(REPZ, "^REPZ")
-        dep_token(REPNE, "^REPNE")
-        dep_token(REPNZ, "^REPNZ")
-        dep_token(CS, "^CS")
-        dep_token(DS, "^DS")
-        dep_token(FS, "^FS")
-        dep_token(GS, "^GS")
-        dep_token(XLAT, "^XLAT")
-        
+        token(ADC, "^ADC")
+        token(SBB, "^SBB")
         token(LEA, "^LEA")
         token(CALL, "^CALL")
         token(JMP, "^JMP")
@@ -97,8 +57,6 @@ createCompilerH(
         token(OR, "^OR")
         token(AND, "^AND")
         token(CMP, "^CMP")
-        token(ADC, "^ADC")
-        token(SBB, "^SBB")
         token(XOR, "^XOR")
         token(IMUL, "^IMUL")
         token(IDIV, "^IDIV")
@@ -238,50 +196,15 @@ createCompilerH(
             pp_scaled_instruction,
             pp_complex_instruction,
             pp_offset_instruction,
-            bitwise_hex_r_instruction,
-            bitwise_hex_indirect_instruction,
-            bitwise_hex_index_instruction,
-            bitwise_hex_scaled_instruction,
-            bitwise_hex_complex_instruction,
-            bitwise_hex_offset_instruction,
-            bitwise_cl_r_instruction,
-            bitwise_cl_indirect_instruction,
-            bitwise_cl_index_instruction,
-            bitwise_cl_scaled_instruction,
-            bitwise_cl_complex_instruction,
-            bitwise_cl_offset_instruction,
             Label,
             jump_label,
             jmp_label,
             syscall_instruction,
-            CBW_instruction,
-            CWDE_instruction,
-            CWD_instruction,
-            CDQ_instruction,
             NOP_instruction,
-            XLAT_instruction,
-            HLT_instruction,
-            LEAVE_instruction,
             RET_instruction,
-            CMC_instruction,
-            CLC_instruction,
-            STC_instruction,
-            CLI_instruction,
-            STI_instruction,
-            CLD_instruction,
-            STD_instruction,
-            SAHF_instruction,
-            LAHF_instruction,
             INT_instruction,
-            RDTSC_instruction,
-            CPUID_instruction,
-            REP_instruction,
-            REPN_instruction,
-            CS_instruction,
-            DS_instruction,
-            FS_instruction,
-            GS_instruction,
-            call_label
+            call_label,
+            WAIT_instruction
         )
     )
     nodeNext(Section_Data_Statement
@@ -406,20 +329,6 @@ createCompilerH(
         )
         var(unsigned char, r)
         var(unsigned char, imm)
-    )
-    node(Bitwise_instruction
-        any_rule(
-            ROL,
-            ROR,
-            RCL,
-            RCR,
-            SHL,
-            SAL,
-            SHR,
-            SAR
-        )
-        var(unsigned char, instruction)
-        var(unsigned char, group)
     )
     node(Jump_instruction
         any_rule(
@@ -775,148 +684,6 @@ createCompilerH(
             CLOSE_BRACK
         )
     )
-    node(bitwise_hex_r_instruction
-        all_rule(
-            Bitwise_instruction,
-            Register,
-            HEX_LITERAL
-        )
-    )
-    node(bitwise_hex_indirect_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            CLOSE_BRACK,
-            HEX_LITERAL
-        )
-    )
-    node(bitwise_hex_index_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            PLUS,
-            Register,
-            CLOSE_BRACK,
-            HEX_LITERAL
-        )
-    )
-    node(bitwise_hex_scaled_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            PLUS,
-            Register,
-            MULTIPLY,
-            NUMBER_LITERAL,
-            CLOSE_BRACK,
-            HEX_LITERAL
-        )
-    )
-    node(bitwise_hex_complex_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            PLUS,
-            Register,
-            MULTIPLY,
-            NUMBER_LITERAL,
-            Plus_Minus,
-            NUMBER_LITERAL,
-            CLOSE_BRACK,
-            HEX_LITERAL
-        )
-    )
-    node(bitwise_hex_offset_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            Plus_Minus,
-            NUMBER_LITERAL,
-            CLOSE_BRACK,
-            HEX_LITERAL
-        )
-    )
-    node(bitwise_cl_r_instruction
-        all_rule(
-            Bitwise_instruction,
-            Register,
-            CL
-        )
-    )
-    node(bitwise_cl_indirect_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            CLOSE_BRACK,
-            CL
-        )
-    )
-    node(bitwise_cl_index_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            PLUS,
-            Register,
-            CLOSE_BRACK,
-            CL
-        )
-    )
-    node(bitwise_cl_scaled_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            PLUS,
-            Register,
-            MULTIPLY,
-            NUMBER_LITERAL,
-            CLOSE_BRACK,
-            CL
-        )
-    )
-    node(bitwise_cl_complex_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            PLUS,
-            Register,
-            MULTIPLY,
-            NUMBER_LITERAL,
-            Plus_Minus,
-            NUMBER_LITERAL,
-            CLOSE_BRACK,
-            CL
-        )
-    )
-    node(bitwise_cl_offset_instruction
-        all_rule(
-            Bitwise_instruction,
-            Size_Specifier,
-            OPEN_BRACK,
-            Register,
-            Plus_Minus,
-            NUMBER_LITERAL,
-            CLOSE_BRACK,
-            CL
-        )
-    )
     node(jump_label
         all_rule(
             Jump_instruction,
@@ -985,180 +752,29 @@ createCompilerH(
             HEX_LITERAL
         )
     )
-    node(CBW_instruction
-        any_rule(
-            CBW
-        )
-    )
-    node(CWDE_instruction
-        any_rule(
-            CWDE
-        )
-    )
-    node(CWD_instruction
-        any_rule(
-            CWD
-        )
-    )
-    node(CDQ_instruction
-        any_rule(
-            CDQ
-        )
-    )
+
     node(NOP_instruction
         any_rule(
             NOP
         )
     )
-    node(XLAT_instruction
-        any_rule(
-            XLAT
-        )
-    )
-    node(HLT_instruction
-        any_rule(
-            HLT
-        )
-    )
-    node(LEAVE_instruction
-        any_rule(
-            LEAVE
-        )
-    )
+
     node(RET_instruction
         any_rule(
             RET
         )
     )
-    node(CMC_instruction
-        any_rule(
-            CMC
-        )
-    )
-    node(CLC_instruction
-        any_rule(
-            CLC
-        )
-    )
-    node(STC_instruction
-        any_rule(
-            STC
-        )
-    )
-    node(CLI_instruction
-        any_rule(
-            CLI
-        )
-    )
-    node(STI_instruction
-        any_rule(
-            STI
-        )
-    )
-    node(CLD_instruction
-        any_rule(
-            CLD
-        )
-    )
-    node(STD_instruction
-        any_rule(
-            STD
-        )
-    )
-    node(SAHF_instruction
-        any_rule(
-            SAHF
-        )
-    )
-    node(LAHF_instruction
-        any_rule(
-            LAHF
-        )
-    )
+
     node(INT_instruction
         all_rule(
             INT,
             HEX_LITERAL
         )
     )
-    node(RDTSC_instruction
-        any_rule(
-            RDTSC
-        )
-    )
-    node(CPUID_instruction
-        any_rule(
-            CPUID
-        )
-    )
-    node(REP_instruction
-        any_rule(
-            REP,
-            REPE,
-            REPZ
-        )
-    )
-    node(REPN_instruction
-        any_rule(
-            REPNE,
-            REPNZ
-        )
-    )
-    node(CS_instruction
-        any_rule(
-            CS
-        )
-    )
-    node(DS_instruction
-        any_rule(
-            DS
-        )
-    )
-    node(FS_instruction
-        any_rule(
-            FS
-        )
-    )
-    node(GS_instruction
-        any_rule(
-            GS
-        )
-    )
-
 
     node(WAIT_instruction
         any_rule(
             WAIT
-        )
-    )
-    node(PUSHF_instruction
-        any_rule(
-            PUSHF
-        )
-    )
-    node(POPF_instruction
-        any_rule(
-            POPF
-        )
-    )
-    node(CQO_instruction
-        any_rule(
-            CQO
-        )
-    )
-    node(RDTSCP_instruction
-        any_rule(
-            RDTSCP
-        )
-    )
-    node(SYSENTER_instruction
-        any_rule(
-            SYSENTER
-        )
-    )
-    node(SYSEXIT_instruction
-        any_rule(
-            SYSEXIT
         )
     )
 
