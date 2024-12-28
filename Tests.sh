@@ -8,7 +8,7 @@ passed_tests=0
 inputs=(Tests/Code/*)
 expected_folder="Tests/Expected"
 
-gcc -g Main.c -o compiler -Wall -w
+gcc -g Main.c -o main -Wall -w
 
 # Run tests
 for input in "${inputs[@]}"; do

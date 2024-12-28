@@ -222,6 +222,47 @@ _192, _193, _194, _195, _196, _197, _198, _199, _200, _201, _202, _203, _204, _2
 #define CREATE_COMPILER_H_IMPL(name_, ...) CREATE_COMPILER_H_IMPL_IMPL(name_, __VA_ARGS__)
 #define CREATE_COMPILER_H_IMPL_IMPL(name_, ...) \
 FILE* name_##Out; \
+char** name_##Contents; \
+const char** readFileLines(FILE *file) { \
+    size_t allocatedSize = 256; \
+    const char **lines = (const char **)malloc(sizeof(char*) * allocatedSize); \
+    if (lines == NULL) { \
+        perror("Failed to allocate memory for lines"); \
+        return NULL; \
+    } \
+    size_t lineCount = 0; \
+    char line[1024]; \
+    while (fgets(line, sizeof(line), file)) { \
+        size_t len = strlen(line); \
+        if (line[len - 1] == '\n') { \
+            line[len - 1] = '\0'; \
+        } \
+        if (lineCount >= allocatedSize) { \
+            allocatedSize *= 2; \
+            const char **newLines = (const char **)realloc(lines, sizeof(char*) * allocatedSize); \
+            if (newLines == NULL) { \
+                perror("Failed to reallocate memory for lines"); \
+                for (size_t i = 0; i < lineCount; i++) { \
+                    free((void*)lines[i]); \
+                } \
+                free((void*)lines); \
+                return NULL; \
+            } \
+            lines = newLines; \
+        } \
+        lines[lineCount] = strdup(line); \
+        if (lines[lineCount] == NULL) { \
+            perror("Failed to duplicate line"); \
+            for (size_t i = 0; i < lineCount; i++) { \
+                free((void*)lines[i]); \
+            } \
+            free((void*)lines); \
+            return NULL; \
+        } \
+        lineCount++; \
+    } \
+    return lines; \
+} \
 typedef struct name_##GarbageCollector \
 { \
     void** ptrs; \
@@ -309,6 +350,19 @@ name_##TokenBatch* name_##tokenize(const char* code) \
                 { \
                     if (name_##ignore_token(i)) \
                     { \
+                        char* contents = strndup(code + offset, match[0].rm_eo); \
+                        for (int j = 0; j < strlen(contents); j++) \
+                        { \
+                            if (contents[j] == '\n') \
+                            { \
+                                column = 1; \
+                                line++; \
+                            } \
+                            else \
+                            { \
+                                column++; \
+                            } \
+                        } \
                         offset += match[0].rm_eo; \
                         matched = 1; \
                         regfree(&regex); \
@@ -354,6 +408,7 @@ void Compile##name_(const char* in, const char* out) \
 { \
     name_##garbage = name_##CreateGarbageCollector(); \
     FILE* file = fopen(in, "rb"); \
+    name_##Contents = readFileLines(file); \
     fseek(file, 0, SEEK_END); \
     long file_size = ftell(file); \
     fseek(file, 0, SEEK_SET); \
@@ -371,16 +426,17 @@ void Compile##name_(const char* in, const char* out) \
     if (tokens->token_on != tokens->token_count) \
     { \
         printf("Syntax Error!\n"); \
-        int token_from = 0; \
-        if (tokens->token_on - 10 > 0) \
+        int line_from = 0; \
+        int current_line = tokens->tokens[tokens->token_on].line; \
+        if (current_line - 4 > 0) \
         { \
-            token_from = tokens->token_on; \
+            line_from = current_line - 4; \
         } \
-        for (int i = token_from; i < tokens->token_on; i++) \
+        for (int i = line_from; i < current_line; i++) \
         { \
-            printf("%s ", tokens->tokens[i].value); \
+            printf("\nLine %i: %s", i, name_##Contents[i]); \
         } \
-        printf(" <--- Error Here\n"); \
+        printf(" <--- Junk Line\n"); \
         exit(1); \
     } \
     name_##Out = fopen(out, "w"); \

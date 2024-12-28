@@ -1554,7 +1554,7 @@ recurse(codegen)
     {
         value = findLabel(labels, var_0->var_3->var.var_1->token->value);
         value += 0x400000;
-        fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, long_to_hex_string(value));
+        fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, value);
     }
     if (var_0->var_3->var_index == 2)
     {
