@@ -669,7 +669,7 @@ struct compilerName_##name_ * compilerName_##Create##name_(struct compilerName_#
 
 
 
-#define all_rule(...) ,ALL_RULE_IMPL(__VA_ARGS__)
+#define allRule(...) ,ALL_RULE_IMPL(__VA_ARGS__)
 #define UNION__ALL_RULE_IMPL(...) INDEXED_RUN_MACRO_FOR_EACH(UNION_RULE, __VA_ARGS__)
 #define VAR_DECLARE__ALL_RULE_IMPL(...)
 #define UNION_START__ALL_RULE_IMPL(...)
@@ -694,7 +694,7 @@ struct compilerName_##name_ * compilerName_##Create##name_(struct compilerName_#
 #define ALL_SET_NODE(name_, n_) var_0->var_##n_ = var_##n_;
 
 
-#define any_rule(...) ,ANY_RULE_IMPL(__VA_ARGS__)
+#define anyRule(...) ,ANY_RULE_IMPL(__VA_ARGS__)
 #define UNION__ANY_RULE_IMPL(...) INDEXED_RUN_MACRO_FOR_EACH(UNION_RULE, __VA_ARGS__)
 #define VAR_DECLARE__ANY_RULE_IMPL(...)
 #define UNION_START__ANY_RULE_IMPL(...) union {

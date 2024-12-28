@@ -119,6 +119,7 @@ createCompiler(
         token(MULTIPLY, "^\\*")
         token(IDENTIFIER, "^[a-zA-Z_][a-zA-Z0-9_]*")
         token(HEX_LITERAL, "^0x[0-9A-Za-z_]*")
+        token(BINARY_LITERAL, "^0b[01]*")
         token(NUMBER_LITERAL, "^[0-9]+")
         token(STRING_LITERAL, "^\"[^\"]*\"")
         token(CHAR_LITERAL, "^'.'")
@@ -128,34 +129,42 @@ createCompiler(
         COMMENT,
         WHITESPACE        
     )
+    node(imm
+        anyRule(
+            HEX_LITERAL,
+            NUMBER_LITERAL,
+            BINARY_LITERAL
+        )
+        var(long, value)
+    )
     node(Root
-        all_rule(
+        allRule(
             Statement
         )
     )
     nodeNext(Statement
-        any_rule(
+        anyRule(
             Global,
             Section_Data,
             Section_Text
         )
     )
     node(Section_Data
-        all_rule(
+        allRule(
             SECTION,
             SECTION_DATA,
             Section_Data_Statement
         )
     )
     node(Section_Text
-        all_rule(
+        allRule(
             SECTION,
             SECTION_TEXT,
             Section_Text_Statement
         )
     )
     node(Global
-        all_rule(
+        allRule(
             GLOBAL,
             IDENTIFIER
         )
@@ -163,7 +172,7 @@ createCompiler(
         var(Elf64_Phdr, phdr)
     )
     nodeNext(Section_Text_Statement
-        any_rule(
+        anyRule(
             MOV_r_r_instruction,
             MOV_r_imm_instruction,
             MOV_r_direct_instruction,
@@ -210,19 +219,19 @@ createCompiler(
         )
     )
     nodeNext(Section_Data_Statement
-        any_rule(
+        anyRule(
             Variable
         )
     )
     node(Plus_Minus
-        any_rule(
+        anyRule(
             PLUS,
             MINUS
         )
         var(int, val)
     )
     node(Label
-        all_rule(
+        allRule(
             IDENTIFIER,
             COLON
         )
@@ -230,7 +239,7 @@ createCompiler(
         var(char*, value)
     )
     node(Register64
-        any_rule(
+        anyRule(
             RAX,
             RCX,
             RDX,
@@ -243,7 +252,7 @@ createCompiler(
         var(int, reg_value)
     )
     node(Register32
-        any_rule(
+        anyRule(
             EAX,
             ECX,
             EDX,
@@ -256,7 +265,7 @@ createCompiler(
         var(int, reg_value)
     )
     node(Register16
-        any_rule(
+        anyRule(
             AX,
             CX,
             DX,
@@ -269,7 +278,7 @@ createCompiler(
         var(int, reg_value)
     )
     node(Register8
-        any_rule(
+        anyRule(
             AL,
             CL,
             DL,
@@ -282,7 +291,7 @@ createCompiler(
         var(int, reg_value)
     )
     node(Register
-        any_rule(
+        anyRule(
             Register8,
             Register16,
             Register32,
@@ -292,7 +301,7 @@ createCompiler(
         var(int, reg_size)
     )
     node(Multi_Purpose_instruction
-        any_rule(
+        anyRule(
             MOV,
             ADD,
             SUB,
@@ -309,7 +318,7 @@ createCompiler(
         var(unsigned char, imm)
     )
     node(Multi_Purpose_instruction_no_xchg
-        any_rule(
+        anyRule(
             MOV,
             ADD,
             SUB,
@@ -325,7 +334,7 @@ createCompiler(
         var(unsigned char, imm)
     )
     node(Multi_Purpose_instruction_w_lea
-        any_rule(
+        anyRule(
             Multi_Purpose_instruction,
             LEA
         )
@@ -333,7 +342,7 @@ createCompiler(
         var(unsigned char, imm)
     )
     node(Jump_instruction
-        any_rule(
+        anyRule(
             JO,
             JNO,
             JB,
@@ -355,7 +364,7 @@ createCompiler(
         var(long, ptr)
     )
     node(Miscellaneous_Arithmetic_instruction
-        any_rule(
+        anyRule(
             MUL,
             IMUL,
             DIV,
@@ -367,7 +376,7 @@ createCompiler(
         var(unsigned char, group)
     )
     node(Inc_Dec_instruction
-        any_rule(
+        anyRule(
             INC,
             DEC
         )
@@ -375,7 +384,7 @@ createCompiler(
         var(unsigned char, group)
     )
     node(Push_Pop_instruction
-        any_rule(
+        anyRule(
             PUSH,
             POP
         )
@@ -383,7 +392,7 @@ createCompiler(
         var(unsigned char, group)
     )
     node(unary_instruction
-        any_rule(
+        anyRule(
             Miscellaneous_Arithmetic_instruction,
             Inc_Dec_instruction
         )
@@ -391,7 +400,7 @@ createCompiler(
         var(unsigned char, group)
     )
     node(Size_Specifier
-        any_rule(
+        anyRule(
             BYTE,
             WORD,
             DWORD,
@@ -400,37 +409,37 @@ createCompiler(
         var(int, size)
     )
     node(MOV_r_r_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction,
             Register,
             Register
         )
     )
-    node(Hex_Identifier
-        any_rule(
+    node(IMM_Identifier
+        anyRule(
             IDENTIFIER,
-            HEX_LITERAL
+            imm
         )
         var(long, value)
     )
     node(MOV_r_imm_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction_no_xchg,
             Register,
-            Hex_Identifier
+            IMM_Identifier
         )
     )
     node(MOV_r_direct_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
-            HEX_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(MOV_r_indirect_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
@@ -439,18 +448,18 @@ createCompiler(
         )
     )
     node(MOV_r_offset_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
             Register,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(MOV_r_indexed_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
@@ -461,7 +470,7 @@ createCompiler(
         )
     )
     node(MOV_r_scaled_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
@@ -469,12 +478,12 @@ createCompiler(
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(MOV_r_complex_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction_w_lea,
             Register,
             OPEN_BRACK,
@@ -482,23 +491,23 @@ createCompiler(
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(MOV_direct_r_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction,
             OPEN_BRACK,
-            HEX_LITERAL,
+            imm,
             CLOSE_BRACK,
             Register
         )
     )
     node(MOV_indirect_r_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction,
             OPEN_BRACK,
             Register,
@@ -507,18 +516,18 @@ createCompiler(
         )
     )
     node(MOV_offset_r_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction,
             OPEN_BRACK,
             Register,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK,
             Register
         )
     )
     node(MOV_indexed_r_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction,
             OPEN_BRACK,
             Register,
@@ -529,41 +538,41 @@ createCompiler(
         )
     )
     node(MOV_scaled_r_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction,
             OPEN_BRACK,
             Register,
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK,
             Register
         )
     )
     node(MOV_complex_r_instruction
-        all_rule(
+        allRule(
             Multi_Purpose_instruction,
             OPEN_BRACK,
             Register,
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK,
             Register
         )
     )
     node(r_instruction
-        all_rule(
+        allRule(
             unary_instruction,
             Register
         )
     )
     node(indirect_instruction
-        all_rule(
+        allRule(
             unary_instruction,
             Size_Specifier,
             OPEN_BRACK,
@@ -572,7 +581,7 @@ createCompiler(
         )
     )
     node(index_instruction
-        all_rule(
+        allRule(
             unary_instruction,
             Size_Specifier,
             OPEN_BRACK,
@@ -583,7 +592,7 @@ createCompiler(
         )
     )
     node(scaled_instruction
-        all_rule(
+        allRule(
             unary_instruction,
             Size_Specifier,
             OPEN_BRACK,
@@ -591,12 +600,12 @@ createCompiler(
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(complex_instruction
-        all_rule(
+        allRule(
             unary_instruction,
             Size_Specifier,
             OPEN_BRACK,
@@ -604,31 +613,31 @@ createCompiler(
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(offset_instruction
-        all_rule(
+        allRule(
             unary_instruction,
             Size_Specifier,
             OPEN_BRACK,
             Register,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(pp_r_instruction
-        all_rule(
+        allRule(
             Push_Pop_instruction,
             Register
         )
     )
     node(pp_indirect_instruction
-        all_rule(
+        allRule(
             Push_Pop_instruction,
             Size_Specifier,
             OPEN_BRACK,
@@ -637,7 +646,7 @@ createCompiler(
         )
     )
     node(pp_index_instruction
-        all_rule(
+        allRule(
             Push_Pop_instruction,
             Size_Specifier,
             OPEN_BRACK,
@@ -648,7 +657,7 @@ createCompiler(
         )
     )
     node(pp_scaled_instruction
-        all_rule(
+        allRule(
             Push_Pop_instruction,
             Size_Specifier,
             OPEN_BRACK,
@@ -656,12 +665,12 @@ createCompiler(
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(pp_complex_instruction
-        all_rule(
+        allRule(
             Push_Pop_instruction,
             Size_Specifier,
             OPEN_BRACK,
@@ -669,37 +678,37 @@ createCompiler(
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(pp_offset_instruction
-        all_rule(
+        allRule(
             Push_Pop_instruction,
             Size_Specifier,
             OPEN_BRACK,
             Register,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(jump_label
-        all_rule(
+        allRule(
             Jump_instruction,
             IDENTIFIER
         )
         var(long, ptr)
     )
     node(syscall_instruction
-        all_rule(
+        allRule(
             SYSCALL
         )
     )
     node(Directive
-        any_rule(
+        anyRule(
             DB,
             DW,
             DD,
@@ -708,14 +717,14 @@ createCompiler(
         var(int, size)
     )
     node(Variable
-        all_rule(
+        allRule(
             IDENTIFIER,
             Directive,
             Variable_Value
         )
     )
     node(Variable_Value
-        any_rule(
+        anyRule(
             Variable_Value_DB,
             Variable_Value_DW,
             Variable_Value_DD,
@@ -723,78 +732,74 @@ createCompiler(
         )
     )
     nodeNext(Variable_Value_DB
-        any_rule(
+        anyRule(
             STRING_LITERAL,
             CHAR_LITERAL,
-            NUMBER_LITERAL,
-            HEX_LITERAL
+            imm
         )
     )
     nodeNext(Variable_Value_DW
-        any_rule(
+        anyRule(
             STRING_LITERAL,
             CHAR_LITERAL,
-            NUMBER_LITERAL,
-            HEX_LITERAL
+            imm
         )
     )
     nodeNext(Variable_Value_DD
-        any_rule(
+        anyRule(
             STRING_LITERAL,
             CHAR_LITERAL,
-            NUMBER_LITERAL,
-            HEX_LITERAL
+            imm
         )
     )
     nodeNext(Variable_Value_DQ
-        any_rule(
+        anyRule(
             STRING_LITERAL,
             CHAR_LITERAL,
-            NUMBER_LITERAL,
-            HEX_LITERAL
+            imm
         )
     )
 
     node(NOP_instruction
-        any_rule(
+        anyRule(
             NOP
         )
     )
 
     node(RET_instruction
-        any_rule(
+        anyRule(
             RET
         )
     )
 
     node(INT_instruction
-        all_rule(
+        allRule(
             INT,
-            HEX_LITERAL
+            imm
         )
     )
 
     node(WAIT_instruction
-        any_rule(
+        anyRule(
             WAIT
         )
     )
 
 
     node(jmp_register
-        any_rule(
+        anyRule(
             Register16,
             Register64
         )
     )
     node(jmp_r_instruction
-        all_rule(
+        allRule(
             JMP,
             Register
         )
     )
     node(jmp_indirect_instruction
-        all_rule(
+        allRule(
             JMP,
             Size_Specifier,
             OPEN_BRACK,
@@ -803,7 +808,7 @@ createCompiler(
         )
     )
     node(jmp_index_instruction
-        all_rule(
+        allRule(
             JMP,
             Size_Specifier,
             OPEN_BRACK,
@@ -814,7 +819,7 @@ createCompiler(
         )
     )
     node(jmp_scaled_instruction
-        all_rule(
+        allRule(
             JMP,
             Size_Specifier,
             OPEN_BRACK,
@@ -822,12 +827,12 @@ createCompiler(
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(jmp_complex_instruction
-        all_rule(
+        allRule(
             JMP,
             Size_Specifier,
             OPEN_BRACK,
@@ -835,32 +840,32 @@ createCompiler(
             PLUS,
             Register,
             MULTIPLY,
-            NUMBER_LITERAL,
+            imm,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(jmp_offset_instruction
-        all_rule(
+        allRule(
             JMP,
             Size_Specifier,
             OPEN_BRACK,
             Register,
             Plus_Minus,
-            NUMBER_LITERAL,
+            imm,
             CLOSE_BRACK
         )
     )
     node(jmp_label
-        all_rule(
+        allRule(
             JMP,
             IDENTIFIER
         )
         var(long, ptr)
     )
     node(call_label
-        all_rule(
+        allRule(
             CALL,
             IDENTIFIER
         )

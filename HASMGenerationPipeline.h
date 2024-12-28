@@ -21,14 +21,36 @@ char* long_to_hex_string(int value) {
     return hex_string;
 }
 
-long hex_to_long(const char* hex_str) {
-    if (hex_str == NULL) {
-        printf("an error has occured!");
-        exit(1);
+void printLong(FILE *file, long value, size_t bytes) {
+    // Ensure the value fits within the specified number of bytes
+
+    // Print the bytes of the long value
+    for (size_t i = 0; i < bytes; i++) {
+        unsigned char byte = (value >> (i * 8)) & 0xFF;  // Extract each byte
+        fprintf(file, "%c", byte);  // Write the byte to the file as raw machine code
+    }
+}
+
+long hexStringToLong(const char* hexStr) {
+    if (hexStr == NULL || strncmp(hexStr, "0x", 2) != 0) {
+        fprintf(stderr, "Invalid hexadecimal string format. Must start with 0x.\n");
+        return -1;
     }
 
-    char* endptr;
-    long result = strtol(hex_str, &endptr, 16);
+    char* endPtr;
+    long result = strtol(hexStr, &endPtr, 16);
+
+    return result;
+}
+
+long binaryStringToLong(const char* binStr) {
+    if (binStr == NULL || strncmp(binStr, "0b", 2) != 0) {
+        fprintf(stderr, "Invalid binary string format. Must start with 0b.\n");
+        return -1;  // Return an invalid value if there's an error
+    }
+
+    char* endPtr;
+    long result = strtoul(binStr, &endPtr, 2);
 
     return result;
 }
@@ -241,30 +263,29 @@ void fileprint_r_r_instruction(FILE* file, u_int8_t instruction, int left_regist
     }
 }
 
-void fileprint_r_imm_instruction(FILE* file, u_int8_t instruction, int left_register_size, int left_register_value, const char* imm)
+void fileprint_r_imm_instruction(FILE* file, u_int8_t instruction, int left_register_size, int left_register_value, long imm)
 {
-    
     if (instruction == 0x00)
     {
         if (left_register_size == 8)
         {
             fprintf(file, "%c%c", 0xF6, 0xC0 + left_register_value);
-            hexStringToByteArray(file, imm, 1);
+            printLong(file, imm, 1);
         }
         else if (left_register_size == 16)
         {
             fprintf(file, "%c%c%c", 0x66, 0xF7, 0xC0 + left_register_value);
-            hexStringToByteArray(file, imm, 2);
+            printLong(file, imm, 2);
         }
         else if (left_register_size == 32)
         {
             fprintf(file, "%c%c", 0xF7, 0xC0 + left_register_value);
-            hexStringToByteArray(file, imm, 4);
+            printLong(file, imm, 4);
         }
         else if (left_register_size == 64)
         {
             fprintf(file, "%c%c%c", 0x48, 0xF7, 0xC0 + left_register_value);
-            hexStringToByteArray(file, imm, 4);
+            printLong(file, imm, 4);
         }
     }
     else if (instruction == 0xb0)
@@ -272,30 +293,30 @@ void fileprint_r_imm_instruction(FILE* file, u_int8_t instruction, int left_regi
         if (left_register_size == 8)
         {
             fprintf(file, "%c", 0xB0 + left_register_value);
-            hexStringToByteArray(file, imm, 1);
+            printLong(file, imm, 1);
         }
         else if (left_register_size == 16)
         {
             fprintf(file, "%c%c", 0x66, 0xB8 + left_register_value);
-            hexStringToByteArray(file, imm, 2);
+            printLong(file, imm, 2);
         }
         else if (left_register_size == 32)
         {
             fprintf(file, "%c", 0xB8 + left_register_value);
-            hexStringToByteArray(file, imm, 4);
+            printLong(file, imm, 4);
         }
         else if (left_register_size == 64)
         {
-            int size = hexStringSize(imm);
-            if (size <= 4)
+            printf("%li %li \n", imm, 256*256*256*256);
+            if (imm < 4294967295)
             {
                 fprintf(file, "%c%c%c", 0x48, 0xC7, 0xC0 + left_register_value);
-                hexStringToByteArray(file, imm, 4);
+                printLong(file, imm, 4);
             }
             else
             {
                 fprintf(file, "%c%c", 0x48, 0xB8 + left_register_value);
-                hexStringToByteArray(file, imm, 8);
+                printLong(file, imm, 8);
             }
         }
     }
@@ -305,48 +326,45 @@ void fileprint_r_imm_instruction(FILE* file, u_int8_t instruction, int left_regi
         if (left_register_size == 8)
         {
             fprintf(file, "%c%c", 0x80, instruction + left_register_value);
-            hexStringToByteArray(file, imm, 1);
+            printLong(file, imm, 1);
         }
         else if (left_register_size == 16)
         {
-            int size = hexStringSize(imm);
-            if (size == 1)
+            if (imm < 256)
             {
                 fprintf(file, "%c%c%c", 0x66, 0x83, instruction + left_register_value);
-                hexStringToByteArray(file, imm, 1);
+                printLong(file, imm, 1);
             }
             else
             {
                 fprintf(file, "%c%c%c", 0x66, 0x81, instruction + left_register_value);
-                hexStringToByteArray(file, imm, 2);
+                printLong(file, imm, 2);
             }
         }
         else if (left_register_size == 32)
         {
-            int size = hexStringSize(imm);
-            if (size == 1)
+            if (imm < 256)
             {
                 fprintf(file, "%c%c", 0x83, instruction + left_register_value);
-                hexStringToByteArray(file, imm, 1);
+                printLong(file, imm, 1);
             }
             else
             {
                 fprintf(file, "%c%c", 0x81, instruction + left_register_value);
-                hexStringToByteArray(file, imm, 4);
+                printLong(file, imm, 4);
             }
         }
         else if (left_register_size == 64)
         {
-            int size = hexStringSize(imm);
-            if (size == 1)
+            if (imm < 256)
             {
                 fprintf(file, "%c%c%c", 0x48, 0x83, instruction + left_register_value);
-                hexStringToByteArray(file, imm, 1);
+                printLong(file, imm, 1);
             }
             else
             {
                 fprintf(file, "%c%c%c", 0x48, 0x81, instruction + left_register_value);
-                hexStringToByteArray(file, imm, 4);
+                printLong(file, imm, 4);
             }
         }
     }
@@ -382,7 +400,7 @@ void fileprint_r_indirect_instruction(FILE* file, u_int8_t instruction, int inve
     }
 }
 // mov r [n]
-void fileprint_r_direct_instruction(FILE* file, u_int8_t instruction, int inverse, int left_register_size, int left_register_value, const char* hex)
+void fileprint_r_direct_instruction(FILE* file, u_int8_t instruction, int inverse, int left_register_size, int left_register_value, long hex)
 {
     if (inverse || instruction == 0x88 || instruction == 0x86)
     {
@@ -392,22 +410,22 @@ void fileprint_r_direct_instruction(FILE* file, u_int8_t instruction, int invers
     if (left_register_size == 8)
     {
         fprintf(file, "%c%c%c", instruction, getModRM(0b00, left_register_value, 0b100), 0x25);
-        hexStringToByteArray(file, hex, 4);
+        printLong(file, hex, 4);
     }
     else if (left_register_size == 16)
     {
         fprintf(file, "%c%c%c%c", 0x66, instruction+1, getModRM(0b00, left_register_value, 0b100), 0x25);
-        hexStringToByteArray(file, hex, 4);
+        printLong(file, hex, 4);
     }
     else if (left_register_size == 32)
     {
         fprintf(file, "%c%c%c", instruction+1, getModRM(0b00, left_register_value, 0b100), 0x25);
-        hexStringToByteArray(file, hex, 4);
+        printLong(file, hex, 4);
     }
     else if (left_register_size == 64)
     {
         fprintf(file, "%c%c%c%c", 0x48, instruction+1, getModRM(0b00, left_register_value, 0b100), 0x25);
-        hexStringToByteArray(file, hex, 4);
+        printLong(file, hex, 4);
     }
 }
 // mov r [r+n]
@@ -1511,7 +1529,7 @@ recurse(label_resolution)
 {
      continue_it();
 }
-#define NODE Hex_Identifier
+#define NODE IMM_Identifier
 recurse(semantics)
 {
     continue_it();
@@ -1540,7 +1558,7 @@ recurse(codegen)
     }
     if (var_0->var_3->var_index == 2)
     {
-        fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_3->var.var_2->token->value);
+        fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_3->var.var_2->value);
     }
     
     continue_it();
@@ -1556,7 +1574,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_r_direct_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->token->value);
+    fileprint_r_direct_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->value);
     continue_it();
 }
 recurse(label_resolution)
@@ -1584,7 +1602,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_r_offset_instruction(file, var_0->var_1->r, 0, atoi(var_0->var_6->token->value) * var_0->var_5->val, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value);
+    fileprint_r_offset_instruction(file, var_0->var_1->r, 0, var_0->var_6->value * var_0->var_5->val, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value);
     continue_it();
 }
 recurse(label_resolution)
@@ -1612,7 +1630,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_r_scaled_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
+    fileprint_r_scaled_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, var_0->var_8->value);
     continue_it();
 }
 recurse(label_resolution)
@@ -1626,7 +1644,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_r_complex_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value) * var_0->var_9->val);
+    fileprint_r_complex_instruction(file, var_0->var_1->r, 0, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, var_0->var_8->value, var_0->var_10->value * var_0->var_9->val);
     continue_it();
 }
 recurse(label_resolution)
@@ -1640,7 +1658,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_r_direct_instruction(file, var_0->var_1->r, 1, var_0->var_5->reg_size, var_0->var_5->reg_value, var_0->var_3->token->value);
+    fileprint_r_direct_instruction(file, var_0->var_1->r, 1, var_0->var_5->reg_size, var_0->var_5->reg_value, var_0->var_3->value);
     continue_it();
 }
 recurse(label_resolution)
@@ -1668,7 +1686,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_r_offset_instruction(file, var_0->var_1->r, 1, atoi(var_0->var_5->token->value) * var_0->var_4->val, var_0->var_7->reg_size, var_0->var_7->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value);
+    fileprint_r_offset_instruction(file, var_0->var_1->r, 1, var_0->var_5->value * var_0->var_4->val, var_0->var_7->reg_size, var_0->var_7->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value);
     continue_it();
 }
 recurse(label_resolution)
@@ -1696,7 +1714,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_r_scaled_instruction(file, var_0->var_1->r, 1, var_0->var_9->reg_size, var_0->var_9->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value, var_0->var_5->reg_size, var_0->var_5->reg_value, atoi(var_0->var_7->token->value));
+    fileprint_r_scaled_instruction(file, var_0->var_1->r, 1, var_0->var_9->reg_size, var_0->var_9->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value, var_0->var_5->reg_size, var_0->var_5->reg_value, var_0->var_7->value);
     continue_it();
 }
 recurse(label_resolution)
@@ -1710,7 +1728,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_r_complex_instruction(file, var_0->var_1->r, 1, var_0->var_11->reg_size, var_0->var_11->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value, var_0->var_5->reg_size, var_0->var_5->reg_value, atoi(var_0->var_7->token->value), atoi(var_0->var_9->token->value) * var_0->var_8->val);
+    fileprint_r_complex_instruction(file, var_0->var_1->r, 1, var_0->var_11->reg_size, var_0->var_11->reg_value, var_0->var_3->reg_size, var_0->var_3->reg_value, var_0->var_5->reg_size, var_0->var_5->reg_value, var_0->var_7->value, var_0->var_9->value * var_0->var_8->val);
     continue_it();
 }
 recurse(label_resolution)
@@ -1766,7 +1784,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_scaled_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
+    fileprint_scaled_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, var_0->var_8->value);
     continue_it();
 }
 recurse(label_resolution)
@@ -1780,7 +1798,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_complex_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value)*var_0->var_9->val);
+    fileprint_complex_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, var_0->var_8->value, var_0->var_10->value*var_0->var_9->val);
     continue_it();
 }
 recurse(label_resolution)
@@ -1794,7 +1812,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_offset_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, atoi(var_0->var_6->token->value)*var_0->var_5->val);
+    fileprint_offset_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->value*var_0->var_5->val);
     continue_it();
 }
 recurse(label_resolution)
@@ -1850,7 +1868,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_pp_scaled_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
+    fileprint_pp_scaled_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, var_0->var_8->value);
     continue_it();
 }
 recurse(label_resolution)
@@ -1864,7 +1882,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_pp_complex_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value)*var_0->var_9->val);
+    fileprint_pp_complex_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, var_0->var_8->value, var_0->var_10->value*var_0->var_9->val);
     continue_it();
 }
 recurse(label_resolution)
@@ -1878,7 +1896,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_pp_offset_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, atoi(var_0->var_6->token->value)*var_0->var_5->val);
+    fileprint_pp_offset_instruction(file, var_0->var_1->instruction, var_0->var_1->group, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->value*var_0->var_5->val);
     continue_it();
 }
 recurse(label_resolution)
@@ -1994,10 +2012,7 @@ recurse(codegen)
         case 3:
             int filesize = GetFileSize(file);
             fprintf(file, "0");
-            replace_bytes(file, filesize, 1, atoi(var_0->var.var_3->token->value));
-        break;
-        case 4:
-            hexStringToByteArray(file, var_0->var.var_4->token->value, 1);
+            replace_bytes(file, filesize, 1, var_0->var.var_3->value);
         break;
     }
     continue_it();
@@ -2030,10 +2045,7 @@ recurse(codegen)
         case 3:
             int filesize = GetFileSize(file);
             fprintf(file, "\0\0");
-            replace_bytes(file, filesize, 2, atoi(var_0->var.var_3->token->value));
-        break;
-        case 4:
-            hexStringToByteArray(file, var_0->var.var_4->token->value, 2);
+            replace_bytes(file, filesize, 2, var_0->var.var_3->value);
         break;
     }
     continue_it();
@@ -2066,10 +2078,7 @@ recurse(codegen)
         case 3:
             int filesize = GetFileSize(file);
             fprintf(file, "\0\0\0\0");
-            replace_bytes(file, filesize, 4, atoi(var_0->var.var_3->token->value));
-        break;
-        case 4:
-            hexStringToByteArray(file, var_0->var.var_4->token->value, 4);
+            replace_bytes(file, filesize, 4, var_0->var.var_3->value);
         break;
     }
     continue_it();
@@ -2102,10 +2111,7 @@ recurse(codegen)
         case 3:
             int filesize = GetFileSize(file);
             fprintf(file, "\0\0\0\0\0\0\0\0");
-            replace_bytes(file, filesize, 8, atoi(var_0->var.var_3->token->value));
-        break;
-        case 4:
-            hexStringToByteArray(file, var_0->var.var_4->token->value, 8);
+            replace_bytes(file, filesize, 8, var_0->var.var_3->value);
         break;
     }
     continue_it();
@@ -2136,8 +2142,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fprintf(file, "%c", 0xCD);
-    hexStringToByteArray(file, var_0->var_2->token->value, 1);
+    fprintf(file, "%c%c", 0xCD, var_0->var_2->value);
     continue_it();
 }
 recurse(label_resolution)
@@ -2209,7 +2214,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_jmp_scaled_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value));
+    fileprint_jmp_scaled_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, var_0->var_8->value);
     continue_it();
 }
 recurse(label_resolution)
@@ -2223,7 +2228,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_jmp_complex_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, atoi(var_0->var_8->token->value), atoi(var_0->var_10->token->value)*var_0->var_9->val);
+    fileprint_jmp_complex_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->reg_size, var_0->var_6->reg_value, var_0->var_8->value, var_0->var_10->value*var_0->var_9->val);
     continue_it();
 }
 recurse(label_resolution)
@@ -2237,7 +2242,7 @@ recurse(semantics)
 }
 recurse(codegen)
 {
-    fileprint_jmp_offset_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, atoi(var_0->var_6->token->value)*var_0->var_5->val);
+    fileprint_jmp_offset_instruction(file, 4, 0, var_0->var_2->size, var_0->var_4->reg_size, var_0->var_4->reg_value, var_0->var_6->value*var_0->var_5->val);
     continue_it();
 }
 recurse(label_resolution)
@@ -2310,6 +2315,31 @@ recurse(semantics)
 recurse(codegen)
 {
     fprintf(file, "%c", 0xC3);
+    continue_it();
+}
+recurse(label_resolution)
+{
+    continue_it();
+}
+#define NODE imm
+recurse(semantics)
+{
+    continue_it();
+    switch(var_0->var_index)
+    {
+        case 1:
+        var_0->value = hexStringToLong(var_0->var.var_1->token->value);
+        break;
+        case 2:
+        var_0->value = atoi(var_0->var.var_2->token->value);
+        break;
+        case 3:
+        var_0->value = binaryStringToLong(var_0->var.var_3->token->value);
+        break;
+    }
+}
+recurse(codegen)
+{
     continue_it();
 }
 recurse(label_resolution)
