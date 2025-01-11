@@ -873,7 +873,7 @@ createCompiler(
     )
 
 
-    iterationStep(semantics)
-    iterationStep(codegen)
-    iterationStep(label_resolution)
+    recurseStep(semantics)
+    recurseStep(codegen)
+    recurseStep(label_resolution)
 )

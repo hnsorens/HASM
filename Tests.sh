@@ -18,7 +18,7 @@ for input in "${inputs[@]}"; do
     actual="OUTPUT.txt"
     
     # Run the program and suppress its output
-    ./compiler "$input" > /dev/null 2>&1
+    ./main "$input" "$actual" > /dev/null 2>&1
 
     # Compare actual output with expected output
     if diff -q "$actual" "$expected" > /dev/null; then

@@ -601,7 +601,7 @@ int compilerName_##ignore_token(int i) \
 #define CONTINUE_H_ITERATION_MACRO__IGNORE_TOKENS_IMPL(...) NOTHING
 #define TOKEN_H_ITERATION_MACRO__IGNORE_TOKENS_IMPL(...) NOTHING
 
-#define iterationStep(name_) ,ITERATION_STEP_IMPL(COMPILER, name_)
+#define recurseStep(name_) ,ITERATION_STEP_IMPL(COMPILER, name_)
 #define H_TOKENS__ITERATION_STEP_IMPL(compilerName_, name_)
 #define H_IGNORE_TOKENS__ITERATION_STEP_IMPL(compilerName_, name_)
 #define H_ITERATION_STEP__ITERATION_STEP_IMPL(compilerName_, name_)
