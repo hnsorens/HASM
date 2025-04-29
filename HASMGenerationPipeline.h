@@ -1,5 +1,7 @@
 #include "HASMRules.h"
 
+
+
 char* long_to_hex_string(int value) {
     // Calculate the size of the string needed: 2 hex digits per byte + "0x" + null terminator
     size_t byte_count = sizeof(int);
@@ -241,10 +243,10 @@ void fileprint_r_r_instruction(FILE* file, u_int8_t instruction, int left_regist
     }
 }
 
-void fileprint_r_imm_instruction(FILE* file, u_int8_t instruction, int left_register_size, int left_register_value, const char* imm)
+void fileprint_r_imm_instruction(FILE* file, u_int8_t r, u_int8_t instruction, int left_register_size, int left_register_value, const char* imm)
 {
     
-    if (instruction == 0xC0)
+    if (instruction == 0xC0 && r == 0x86)
     {
         if (left_register_size == 8)
         {
@@ -879,10 +881,7 @@ void fileprint_jmp_r_instruction(FILE* file, int instruction, u_int8_t group, in
     fprintf(file, "%c", 0xFF);
     fprintf(file, "%c", 0xE0 + register_value);
 }
-void fileprint_jmp_indirect_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int register_size, int register_value)
-{
-    fileprint_jmp_offset_instruction(file, instruction, group, size_specifier, register_size, register_value, 0);
-}
+
 // CHANGE THE WAY WE ARE DOING instruction SO IT IS PROPER
 void fileprint_jmp_offset_instruction(FILE* file, u_int8_t instruction, u_int8_t group, int size_specifier, int register_size, int register_value, int offset)
 {
@@ -896,13 +895,9 @@ void fileprint_jmp_offset_instruction(FILE* file, u_int8_t instruction, u_int8_t
     fprintf(file, "%c", 0xFF);
     handleLoadOffset(file, offset + size_offset, instruction, register_value);
 }
-void fileprint_jmp_scaled_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int left_register_size, int left_register_value, int right_register_size, int right_register_value, int multiple)
+void fileprint_jmp_indirect_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int register_size, int register_value)
 {
-    fileprint_jmp_complex_instruction(file, instruction, group, size_specifier, left_register_size, left_register_value, right_register_size, right_register_value, multiple, 0);
-}
-void fileprint_jmp_indexed_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int left_register_size, int left_register_value, int right_register_size, int right_register_value)
-{
-    fileprint_jmp_scaled_instruction(file, instruction, group, size_specifier, left_register_size, left_register_value, right_register_size, right_register_value, 1);
+    fileprint_jmp_offset_instruction(file, instruction, group, size_specifier, register_size, register_value, 0);
 }
 void fileprint_jmp_complex_instruction(FILE* file, u_int8_t instruction, u_int8_t group, int size_specifier, int left_register_size, int left_register_value, int right_register_size, int right_register_value, int multiple, int offset)
 {
@@ -934,7 +929,14 @@ void fileprint_jmp_complex_instruction(FILE* file, u_int8_t instruction, u_int8_
     fprintf(file, "%c", 0xFF);
     handleComplexLoadOffset(file, offset + size_offset, mod, left_register_value, right_register_value, instruction);
 }
-
+void fileprint_jmp_scaled_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int left_register_size, int left_register_value, int right_register_size, int right_register_value, int multiple)
+{
+    fileprint_jmp_complex_instruction(file, instruction, group, size_specifier, left_register_size, left_register_value, right_register_size, right_register_value, multiple, 0);
+}
+void fileprint_jmp_indexed_instruction(FILE* file, int instruction, u_int8_t group, int size_specifier, int left_register_size, int left_register_value, int right_register_size, int right_register_value)
+{
+    fileprint_jmp_scaled_instruction(file, instruction, group, size_specifier, left_register_size, left_register_value, right_register_size, right_register_value, 1);
+}
 
 struct Labels* labels;
 
@@ -1577,11 +1579,11 @@ iteration(codegen)
     {
         value = findLabel(labels, var_0->var_3->var.var_1->token->value);
         value += 0x400000;
-        fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, long_to_hex_string(value));
+        fileprint_r_imm_instruction(file, var_0->var_1->r, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, long_to_hex_string(value));
     }
     if (var_0->var_3->var_index == 2)
     {
-        fileprint_r_imm_instruction(file, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_3->var.var_2->token->value);
+        fileprint_r_imm_instruction(file, var_0->var_1->r, var_0->var_1->imm, var_0->var_2->reg_size, var_0->var_2->reg_value, var_0->var_3->var.var_2->token->value);
     }
     
     continue_it();

@@ -14,6 +14,7 @@ gcc -g Main.c -o compiler -Wall -w
 for input in "${inputs[@]}"; do
     total_tests=$((total_tests + 1))
     base_name=$(basename "$input") # Extract file name without folder path
+    base_name="${base_name%.*}"
     expected="$expected_folder/$base_name"
     actual="OUTPUT.txt"
     

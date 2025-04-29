@@ -2,11 +2,11 @@
 // #include "Parser.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "HASMGenerationPipeline.h"
+// #include "HASMGenerationPipeline.h"
 
 int main(int argc, const char* argv[])
 {
-    CompileHASM(argv[1], "OUTPUT.txt");
+    // CompileHASM(argv[1], "OUTPUT.txt");
     // filename = malloc(strlen(argv[1]));
     // memcpy(filename, argv[1], strlen(argv[1]));
 
@@ -46,8 +46,8 @@ int main(int argc, const char* argv[])
 
     // printf("SEMANTICS COMPLETE\n");
 
-    // FILE* o_file = fopen("OUTPUT.txt", "w");
-
+    FILE* o_file = fopen("OUTPUT.txt", "w");
+    fprintf(o_file, "HELLO WORLD");
     // gen_code_Code(o_file, code);
     // gen_code_Code(o_file, code);
 
@@ -55,7 +55,7 @@ int main(int argc, const char* argv[])
 
     // cleanup_batch(tokens);
 
-    // fclose(o_file);
+    fclose(o_file);
 
     return 0;
 }

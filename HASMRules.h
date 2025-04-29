@@ -7,7 +7,7 @@
 
 
 long beggining_offset = 0;
-char* beggining_label = 0;
+char* beggining_label = "";
 
 #define COMPILER HASM
 createCompilerH(
