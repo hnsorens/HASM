@@ -1,1 +1,0 @@
-gcc -g Main.c -o compiler

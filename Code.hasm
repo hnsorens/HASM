@@ -1,4 +1,0 @@
-GLOBAL _start
-SECTION .text
-_start:
-MOV RAX R11

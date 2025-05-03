@@ -1,5 +1,18 @@
 {
     "files.associations": {
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "hasmgenerationpipeline.h": "c",
+        "chrono": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "random": "c",
+        "initializer_list": "c",
+        "utility": "c",
+        "typeinfo": "c",
+        "assembler.h": "c",
+        "instructions.h": "c",
+        "bitset": "c",
+        "instructionhandlers.h": "c"
     }
 }

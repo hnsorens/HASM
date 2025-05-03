@@ -1,4 +1,0 @@
-
-SECTION .text
-_start:
-MOV RAX RBX
