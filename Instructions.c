@@ -1,10 +1,28 @@
+/*
+ * HASM - x86 Assembly Compiler
+ * Instruction Parsing and Encoding Implementation
+ * 
+ * This file contains the implementation of all instruction parsing and encoding functions.
+ * It handles operand parsing, register lookup, instruction encoding, and utility functions
+ * for number conversion and byte manipulation.
+ */
+
 #include "Instructions.h"
-
-
 #include "assembler.h"
 
+/* ==================== REGISTER MAP ==================== */
+
+/* Static register lookup table - maps register names to register structures */
 static Register register_map[26*26*26];
 
+/* ==================== DEBUGGING UTILITIES ==================== */
+
+/**
+ * Print a line from the source file at a specific position
+ * Used for error reporting to show the problematic line
+ * @param file Source file to read from
+ * @param target_pos Position in file to find the line for
+ */
 void print_line_at_pos(FILE *file, long target_pos) {
     if (fseek(file, 0, SEEK_SET) != 0) {
         perror("fseek failed");
@@ -15,103 +33,140 @@ void print_line_at_pos(FILE *file, long target_pos) {
     long current_pos = 0;
     int c;
 
-    // Find the start of the line (backtrack to previous '\n' or file start)
+    /* Find the start of the line (backtrack to previous '\n' or file start) */
     while (current_pos < target_pos) {
         c = fgetc(file);
         if (c == EOF) break;
         if (c == '\n') {
-            line_start = current_pos + 1;  // Next char after '\n'
+            line_start = current_pos + 1;  /* Next char after '\n' */
         }
         current_pos++;
     }
 
-    // Rewind to the line start
+    /* Rewind to the line start */
     if (fseek(file, line_start, SEEK_SET) != 0) {
         perror("fseek failed");
         return;
     }
 
-    // Print the line until '\n' or EOF
+    /* Print the line until '\n' or EOF */
     while ((c = fgetc(file)) != EOF && c != '\n') {
         putchar(c);
     }
     printf("\n");
 }
 
+/* ==================== INSTRUCTION ENCODING UTILITIES ==================== */
+
+/**
+ * Generate ModR/M byte for x86 instruction encoding
+ * @param mod Mod field (0-3) - addressing mode
+ * @param reg Register field (0-7) - register number
+ * @param rm R/M field (0-7) - register/memory operand
+ * @return Combined ModR/M byte
+ */
 unsigned char get_mod_rm(unsigned char mod, unsigned char reg, unsigned char rm) {
     unsigned char modRM = (mod << 6) | (reg << 3) | rm;
     return modRM;
 }
 
+/**
+ * Write a value in little-endian byte order to the output file
+ * @param value Value to write
+ * @param byte_count Number of bytes to write (max 8)
+ */
 void write_little_endian_bytes(__uint64_t value, size_t byte_count) {
-    if (byte_count > 8) byte_count = 8;
+    if (byte_count > 8) byte_count = 8;  /* Limit to 8 bytes */
 
     for (size_t i = 0; i < byte_count; ++i) {
-        unsigned char byte = (value >> (8 * i)) & 0xFF;
+        unsigned char byte = (value >> (8 * i)) & 0xFF;  /* Extract byte i */
         fprintf(file_out, "%c", byte);
     }
 }
 
-
+/**
+ * Print a signed integer as ASCII representation
+ * Used for writing immediate values to output file
+ * @param n_bytes Number of bytes to write
+ * @param num Integer value to convert
+ */
 void print_signed_integer_as_ascii(int n_bytes, __int64_t num) {
-    // Pointer to the raw bytes of the integer
+    /* Pointer to the raw bytes of the integer */
     unsigned char* byte_ptr = (unsigned char*)&num;
     
-    // Print the bytes as ASCII characters
+    /* Print the bytes as ASCII characters */
     for (int i = 0; i < n_bytes; ++i) {
         fprintf(file_out, "%c", byte_ptr[i]);
     }
 }
 
+/**
+ * Convert an integer to little-endian bytes in a buffer
+ * @param value Integer value to convert
+ * @param buffer Output buffer for bytes
+ * @param numBytes Number of bytes to write
+ */
 void intToBytes(unsigned long value, char *buffer, size_t numBytes) {
     if (numBytes > sizeof(unsigned long)) {
         fprintf(stderr, "Error: numBytes exceeds size of unsigned long.\n");
         return;
     }
 
-    // Copy each byte, little-endian order
+    /* Copy each byte, little-endian order */
     for (size_t i = 0; i < numBytes; ++i) {
         buffer[i] = (value >> (8 * i)) & 0xFF;
     }
 }
 
+/**
+ * Convert a string representation of a number to decimal
+ * Handles hex (0x), binary (0b), and decimal numbers
+ * @param input String to convert (modified in place)
+ */
 void convertToDecimalInPlace(char *input) {
     int base = 10;
     char *numberStr = input;
 
-    // Detect base
+    /* Detect base from prefix */
     if (strncmp(input, "0x", 2) == 0 || strncmp(input, "0X", 2) == 0) {
-        base = 16;
+        base = 16;  /* Hexadecimal */
         numberStr = input + 2;
     } else if (strncmp(input, "0b", 2) == 0 || strncmp(input, "0B", 2) == 0) {
-        base = 2;
+        base = 2;   /* Binary */
         numberStr = input + 2;
     }
 
-    // Convert to integer
+    /* Convert to integer */
     char *end;
     long value = strtol(numberStr, &end, base);
     if (*end != '\0') {
         fprintf(stderr, "Invalid number format: %s\n", input);
-        input[0] = '\0'; // Empty the input string
+        input[0] = '\0'; /* Empty the input string */
         return;
     }
 
-    // Overwrite the input with decimal string
-    snprintf(input, 32, "%ld", value); // Ensure input has enough space
+    /* Overwrite the input with decimal string */
+    snprintf(input, 32, "%ld", value); /* Ensure input has enough space */
 }
 
 
 
+/**
+ * Initialize the register lookup map
+ * Sets up mappings from register names to register numbers and sizes
+ * Uses a hash function based on the first 3 characters of register names
+ */
 void init_register_map()
 {
-    memset(register_map, -1, sizeof(register_map));
+    memset(register_map, -1, sizeof(register_map));  /* Initialize all entries to invalid */
 
     char* opcode_str = "";
+    /* Macro to add a register to the map */
     #define ADD_REG(opcode, size, reg) \
         opcode_str = #opcode; \
         register_map[abs(((opcode_str[0] - 'A') % 26) + ((opcode_str[1] - 'A') % 26) * 26 + ((opcode_str[2] - 'A') % 26) * 26 * 26)] = (Register){size, reg};
 
+    /* 64-bit registers (R-prefix) */
     ADD_REG(RAX, 64, 0)
     ADD_REG(RCX, 64, 1)
     ADD_REG(RDX, 64, 2)
@@ -129,6 +184,7 @@ void init_register_map()
     ADD_REG(R14, 64, 14)
     ADD_REG(R15, 64, 15)
 
+    /* 32-bit registers (E-prefix) */
     ADD_REG(EAX, 32, 0)
     ADD_REG(ECX, 32, 1)
     ADD_REG(EDX, 32, 2)
@@ -138,6 +194,7 @@ void init_register_map()
     ADD_REG(ESI, 32, 6)
     ADD_REG(EDI, 32, 7)
 
+    /* 16-bit registers (no prefix) */
     ADD_REG(AX, 16, 0)
     ADD_REG(CX, 16, 1)
     ADD_REG(DX, 16, 2)
@@ -147,6 +204,7 @@ void init_register_map()
     ADD_REG(SI, 16, 6)
     ADD_REG(DI, 16, 7)
 
+    /* 8-bit low registers (L-suffix) */
     ADD_REG(AL, 8, 0)
     ADD_REG(CL, 8, 1)
     ADD_REG(DL, 8, 2)
@@ -159,11 +217,24 @@ void init_register_map()
     #undef ADD_REG
 }
 
+/**
+ * Look up a register by name and return its structure
+ * @param reg Register name (e.g., "RAX", "EAX", "AL")
+ * @return Register structure with size and register number
+ */
 Register find_register(const char* reg)
 {
     return register_map[abs(((reg[0] - 'A') % 26) + ((reg[1] - 'A') % 26) * 26 + ((reg[2] - 'A') % 26) * 26 * 26)];
 }
 
+/**
+ * Print an error message with source location information
+ * Shows the problematic line and points to the exact position
+ * @param token Token that caused the error
+ * @param error_message Main error message
+ * @param is_note Whether this is a note (additional info)
+ * @param note Additional note text
+ */
 void error(Token* token, char* error_message, int is_note, char* note)
 {
     printf("%s:%i:%i: error: %s\n  ", "program.asm", token->line, token->line_pos, error_message);

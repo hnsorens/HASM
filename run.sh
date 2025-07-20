@@ -1,1 +1,0 @@
-gcc -Wall -Wextra -Werror -pedantic -g main.c assembler.c Instructions.c InstructionHandlers.c -o HASM
