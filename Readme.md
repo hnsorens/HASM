@@ -258,18 +258,6 @@ note: Expected one of: Register, Immediate Value, Memory, Label
 - No conditional assembly directives
 - No external symbol linking
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
-
-## License
-
-[Add your license information here]
-
 ## Acknowledgments
 
 - ELF64 format specification
@@ -278,4 +266,4 @@ note: Expected one of: Register, Immediate Value, Memory, Label
 
 ---
 
-**HASM** - A modern, educational x86 assembler for learning and development.
+**HASM** - An educational x86 assembler for learning and development.
