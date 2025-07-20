@@ -8,7 +8,7 @@ passed_tests=0
 inputs=(Tests/Code/*)
 expected_folder="Tests/Bin"
 
-gcc -g Main.c -w  -fcompare-debug-second -o compiler -Wall -w
+gcc -Wall -Wextra -Werror -pedantic -g main.c assembler.c Instructions.c InstructionHandlers.c -o HASM
 
 # Run tests
 for input in "${inputs[@]}"; do
@@ -19,7 +19,7 @@ for input in "${inputs[@]}"; do
     actual="OUTPUT"
     
     # Run the program and suppress its output
-    ./main "$input"
+    ./HASM "$input" -o OUTPUT
 
     # Compare actual output with expected output
     if diff -q "$actual" "$expected" > /dev/null; then
