@@ -12,16 +12,16 @@
 
 /* ==================== GLOBAL VARIABLES ==================== */
 
-Vector tokens;                           /* Token list from lexical analysis */
-Vector instructions;                     /* Instruction list from parsing */
-InstructionEntry instruction_map[26*26*26] = {0}; /* Instruction handler map - 3-letter hash */
-FILE* file_out = 0;                      /* Output file handle */
-FILE* file = 0;                          /* Input file handle */
-int global_offset = 0;                   /* Current memory offset for code generation */
-int offset = 0;                          /* Current token position in parsing */
-ASM_MODE mode = ASM_GLOBAL;              /* Current assembly mode/section */
-char* begin_label_label = "";            /* Name of the BEGIN label */
-int begin_label_instruction_index = -1;  /* Index of BEGIN label instruction */
+Vector tokens;
+Vector instructions;
+InstructionEntry instruction_map[26*26*26] = {0};
+FILE* file_out = 0;
+FILE* file = 0;
+int global_offset = 0;
+int offset = 0;
+ASM_MODE mode = ASM_GLOBAL;
+char* begin_label_label = "";
+int begin_label_instruction_index = -1;
 
 #include "InstructionHandlers.h"
 

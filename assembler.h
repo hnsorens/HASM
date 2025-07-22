@@ -22,15 +22,15 @@
 /* ==================== MACROS ==================== */
 
 /* Convenience macros for accessing vector elements */
-#define INSTRUCTION(n) ((Instruction*)instructions.data[n])  /* Get instruction at index n */
-#define TOKEN(n) ((Token*)tokens.data[n])                    /* Get token at index n */
-#define MAX(a, b) ((a) > (b) ? (a) : (b))                   /* Maximum of two values */
+#define INSTRUCTION(n) ((Instruction*)instructions.data[n])
+#define TOKEN(n) ((Token*)tokens.data[n])
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 /* Operand type flags for instruction encoding */
-#define OP_REG 1   /* Register operand */
-#define OP_IMM 2   /* Immediate operand */
-#define OP_MEM 4   /* Memory operand */
-#define OP_IDT 8   /* Identifier operand */
+#define OP_REG 1
+#define OP_IMM 2
+#define OP_MEM 4
+#define OP_IDT 8
 
 /* ==================== VECTOR IMPLEMENTATION ==================== */
 
@@ -39,19 +39,19 @@
  * Used for tokens, instructions, and other collections
  */
 typedef struct {
-    void **data;      /* Stores any type - array of pointers */
-    size_t size;      /* Current number of elements */
-    size_t capacity;  /* Maximum number of elements before reallocation */
+    void **data;
+    size_t size;
+    size_t capacity;
 } Vector;
 
 /* Vector operations */
-void vector_init(Vector* vec, size_t capacity);  /* Initialize vector with given capacity */
-void vector_push(Vector* vec, void* item);       /* Add item to end of vector */
-void vector_free(Vector* vec);                   /* Free vector memory */
+void vector_init(Vector* vec, size_t capacity);
+void vector_push(Vector* vec, void* item);
+void vector_free(Vector* vec);
 
 /* ==================== INSTRUCTION MAP ==================== */
 
-void init_instruction_map();  /* Initialize the instruction handler map */
+void init_instruction_map();
 
 /* ==================== TOKEN STRUCTURE ==================== */
 
@@ -189,15 +189,15 @@ typedef enum
 
 /* ==================== GLOBAL VARIABLES ==================== */
 
-extern Vector tokens;                           /* Token list from lexical analysis */
-extern Vector instructions;                     /* Instruction list from parsing */
-extern InstructionEntry instruction_map[26*26*26]; /* Instruction handler map */
-extern FILE* file_out;                          /* Output file handle */
-extern int global_offset;                       /* Current memory offset */
-extern int offset;                              /* Current token position */
-extern ASM_MODE mode;                           /* Current assembly mode */
-extern char* begin_label_label;                 /* Name of the BEGIN label */
-extern int begin_label_instruction_index;       /* Index of BEGIN label instruction */
-extern FILE* file;                              /* Input file handle */
+extern Vector tokens;
+extern Vector instructions;
+extern InstructionEntry instruction_map[26*26*26];
+extern FILE* file_out;
+extern int global_offset;
+extern int offset;
+extern ASM_MODE mode;
+extern char* begin_label_label;
+extern int begin_label_instruction_index;
+extern FILE* file;
 
 #endif

@@ -13,7 +13,7 @@
 /* ==================== REGISTER MAP ==================== */
 
 /* Static register lookup table - maps register names to register structures */
-static Register register_map[26*26*26];
+static Register register_map[26*26*26]; // Register lookup table
 
 /* ==================== DEBUGGING UTILITIES ==================== */
 
